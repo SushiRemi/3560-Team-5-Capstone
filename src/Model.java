@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.UUID;
 
+import javax.lang.model.type.NullType;
+
 public class Model {
     private ArrayList<Task> TaskList;
 
@@ -25,16 +27,52 @@ public class Model {
         // add task to task list
         TaskList.add(newTask);
     }
-
-    public void deleteTask(String taskName){
+    public Integer getTaskByName(String taskName){
         for( int i = 0; i < TaskList.size(); i++){
             if(TaskList.getName().get(i).equals(taskName)){
-                TaskList.remove(i);
-                System.out.println("Object removed");
-                return;
+                return i;
             }
         }
-        System.out.println("Object not found");
+        return -1;
+    }
+
+    public void deleteTask(String taskName){
+        int index = getTaskByName(taskName);
+        if(index != -1){
+            TaskList.remove(index);
+        }else{
+            System.out.println("Object not found");
+        }        
+    }
+    /*
+     * need more clarification on how this will work
+     */
+    public void editTask(String operation, String taskName){
+        int index = getTaskByName(taskName);
+        if (index == -1){
+            System.out.println("Task not found!");
+            return;
+        }else{
+            Task task = TaskList.get(index);
+        }
+        if(operation.equals("edit name")){
+            task.setName();
+        }
+    }
+
+    // returns a DEEP COPY of the current tasks
+    public ArrayList<Task> getTasks(){
+        ArrayList<Task> newList = new ArrayList<>();
+        for (Task temp : TaskList){
+            newList.add(temp);
+        }
+        return newList;
+    }
+    public void scheduleToFile(){
+
+    }
+    public void readScheduleFromFile(){
+
     }
     
 }
