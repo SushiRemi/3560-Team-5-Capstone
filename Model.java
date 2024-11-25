@@ -119,32 +119,38 @@ public class Model {
 
     private void safelyEditTaskTime(String newTime, Task task, String type) {
         // Store original time
-        LocalDateTime originalStartTime = task.getStartTime();
-        LocalDateTime originalEndTime = task.getEndTime();
-
+        float originalStartTime = task.getStartTime();
+        float originalEndTime = task.getEndTime();
+    
         // Update time
-        if (type.equals("start")) {
-            task.setStartTime(parseDateTime(newTime));
-        } else if (type.equals("end")) {
-            task.setEndTime(parseDateTime(newTime));
-        }
-
-        // Check for conflicts
-        if (!checkTimeConflicts(task)) {
-            // Revert to original time if conflict
-            task.setStartTime(originalStartTime);
-            task.setEndTime(originalEndTime);
-            System.out.println("Conflict detected! Time not updated.");
-        } else {
-            System.out.println("Task time updated successfully!");
+        try {
+            float newTimeValue = Float.parseFloat(newTime);
+            if (type.equals("start")) {
+                task.setStartTime(newTimeValue);
+            } else if (type.equals("end")) {
+                task.setEndTime(newTimeValue);
+            }
+    
+            // Check for conflicts
+            if (!checkTimeConflicts(task)) {
+                // Revert to original time if conflict
+                task.setStartTime(originalStartTime);
+                task.setEndTime(originalEndTime);
+                System.out.println("Conflict detected! Time not updated.");
+            } else {
+                System.out.println("Task time updated successfully!");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid time format! Please enter a valid float value.");
         }
     }
+    
     private void safelyEditTaskDuration(String newDuration, Task task) {
         // Store original duration
-        int originalDuration = task.getDuration();
+        float originalDuration = task.getDuration();
     
         // Update duration
-        task.setDuration(Integer.parseInt(newDuration));
+        task.setDuration(Float.parseFloat(newDuration));
     
         // Check for conflicts
         if (!checkTimeConflicts(task)) {
@@ -165,20 +171,11 @@ public class Model {
         System.out.println("Task type updated successfully!");
     }    
 
-    private LocalDateTime parseDateTime(String dateTimeStr) {
-        try {
-            return LocalDateTime.parse(dateTimeStr); // Adjust format as needed
-        } catch (DateTimeParseException e) {
-            System.out.println("Invalid date format! Please use the correct format.");
-            throw e; // Re-throw or handle as needed
-        }
-    }
-
     private boolean checkTimeConflicts(Task newTask) {
         for (int i = 0; i < TaskList.size(); i++) {
             Task existingTask = TaskList.get(i);
             // Check if the tasks overlap
-            if (newTask.getStartDate() < existingTask.getEndDate() && newTask.getEndDate() > existingTask.getStartDate()) {
+            if (newTask.getStartTime() < existingTask.getEndDate() && newTask.getEndDate() > existingTask.getStartTime()) {
                 return false; // Conflict found
             }
         }
