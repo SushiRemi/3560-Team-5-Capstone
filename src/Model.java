@@ -1,7 +1,10 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.lang.model.type.NullType;
+import javax.swing.plaf.TreeUI;
 
 public class Model {
     private ArrayList<Task> TaskList;
@@ -24,12 +27,17 @@ public class Model {
         newTask.setEndDate(taskName);
         newTask.setFrequency(Frequency);
         
-        // add task to task list
-        TaskList.add(newTask);
+        // add task to task list, if no schedule conflicts
+        if(checkTimeConflicts(newTask)){
+            TaskList.add(newTask);
+        }else{
+            System.out.println("New Task conflicts with existing tasks!");
+        }
+        
     }
     public Integer getTaskByName(String taskName){
         for( int i = 0; i < TaskList.size(); i++){
-            if(TaskList.getName().get(i).equals(taskName)){
+            if(TaskList.get(i).getName().equals(taskName)){
                 return i;
             }
         }
@@ -47,16 +55,38 @@ public class Model {
     /*
      * need more clarification on how this will work
      */
-    public void editTask(String operation, String taskName){
+    public void editTask(String operation, String taskName, String argument){
         int index = getTaskByName(taskName);
         if (index == -1){
             System.out.println("Task not found!");
             return;
-        }else{
-            Task task = TaskList.get(index);
         }
-        if(operation.equals("edit name")){
-            task.setName();
+        
+        // Task in reference
+        Task task = TaskList.get(index);
+
+        // Call appropriate functions
+        switch (operation) {
+            case "edit name":
+                editTaskName(argument, task);
+                break;
+            case "edit start time":
+                safelyEditTaskTime(argument, task, "start");
+                break;
+            case "edit end time":
+                safelyEditTaskTime(argument, task, "end");
+                break;
+            case "edit duration":
+                safelyEditTaskDuration(argument, task);
+                break;
+            case "edit frequency":
+                editTaskFrequency(argument, task);
+                break;
+            case "edit type":
+                editTaskType(argument, task);
+                break;
+            default:
+                System.out.println("Invalid operation!");
         }
     }
 
@@ -74,5 +104,86 @@ public class Model {
     public void readScheduleFromFile(){
 
     }
+
+
+
+
+
+
+    // Abstracted helper functions:
+
+    private void editTaskName(String newName, Task task) {
+        task.setName(newName);
+        System.out.println("Task name updated successfully!");
+    }    
+
+    private void safelyEditTaskTime(String newTime, Task task, String type) {
+        // Store original time
+        LocalDateTime originalStartTime = task.getStartTime();
+        LocalDateTime originalEndTime = task.getEndTime();
+
+        // Update time
+        if (type.equals("start")) {
+            task.setStartTime(parseDateTime(newTime));
+        } else if (type.equals("end")) {
+            task.setEndTime(parseDateTime(newTime));
+        }
+
+        // Check for conflicts
+        if (!checkTimeConflicts(task)) {
+            // Revert to original time if conflict
+            task.setStartTime(originalStartTime);
+            task.setEndTime(originalEndTime);
+            System.out.println("Conflict detected! Time not updated.");
+        } else {
+            System.out.println("Task time updated successfully!");
+        }
+    }
+    private void safelyEditTaskDuration(String newDuration, Task task) {
+        // Store original duration
+        int originalDuration = task.getDuration();
+    
+        // Update duration
+        task.setDuration(Integer.parseInt(newDuration));
+    
+        // Check for conflicts
+        if (!checkTimeConflicts(task)) {
+            // Revert to original duration if conflict
+            task.setDuration(originalDuration);
+            System.out.println("Conflict detected! Duration not updated.");
+        } else {
+            System.out.println("Task duration updated successfully!");
+        }
+    }
+
+    private void editTaskFrequency(String newFrequency, Task task) {
+        task.setFrequency(newFrequency);
+        System.out.println("Task frequency updated successfully!");
+    }
+    private void editTaskType(String newType, Task task) {
+        task.setType(newType);
+        System.out.println("Task type updated successfully!");
+    }    
+
+    private LocalDateTime parseDateTime(String dateTimeStr) {
+        try {
+            return LocalDateTime.parse(dateTimeStr); // Adjust format as needed
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date format! Please use the correct format.");
+            throw e; // Re-throw or handle as needed
+        }
+    }
+
+    private boolean checkTimeConflicts(Task newTask) {
+        for (int i = 0; i < TaskList.size(); i++) {
+            Task existingTask = TaskList.get(i);
+            // Check if the tasks overlap
+            if (newTask.getStartDate() < existingTask.getEndDate() && newTask.getEndDate() > existingTask.getStartDate()) {
+                return false; // Conflict found
+            }
+        }
+        return true; // No conflicts
+    }
+    
     
 }
