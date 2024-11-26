@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import javax.lang.model.type.NullType;
 import javax.swing.plaf.TreeUI;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Model {
     private ArrayList<Task> TaskList;
@@ -124,9 +126,48 @@ public class Model {
         }
         return newList;
     }
-    public void scheduleToFile(){
-
+    
+    public void scheduleToFile() {
+        // Create a JSON array to hold tasks
+        JSONArray tasksJsonArray = new JSONArray();
+    
+        for (Task task : TaskList) {
+            JSONObject taskJson = new JSONObject();
+    
+            // Add common attributes
+            taskJson.put("Name", task.getName());
+            taskJson.put("Type", task.getType());
+            taskJson.put("StartTime", task.getStartTime());
+            taskJson.put("Duration", task.getDuration());
+    
+            if (task instanceof TransientTask) {
+                // Add transient task-specific attributes
+                taskJson.put("Date", ((TransientTask) task).getDate());
+            } else if (task instanceof RecurringTask) {
+                // Add recurring task-specific attributes
+                RecurringTask recurringTask = (RecurringTask) task;
+                taskJson.put("StartDate", recurringTask.getDate());
+                taskJson.put("EndDate", recurringTask.getEndDate());
+                taskJson.put("Frequency", recurringTask.getFrequency());
+            } else if (task instanceof AntiTask) {
+                // Add anti-task-specific attributes
+                taskJson.put("Date", ((AntiTask) task).getDate());
+            }
+    
+            // Add the task to the JSON array
+            tasksJsonArray.add(taskJson);
+        }
+    
+        // Write the JSON array to a file
+        try (FileWriter file = new FileWriter("schedule.json")) {
+            file.write(tasksJsonArray.toJSONString());
+            file.flush();
+            System.out.println("Schedule saved to 'schedule.json'.");
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + e.getMessage());
+        }
     }
+    
     public void readScheduleFromFile(){
 
     }
