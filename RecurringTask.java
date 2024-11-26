@@ -13,6 +13,15 @@ public class RecurringTask extends Task {
         this.antiTasks = temp;
     }
 
+    // no argument constuctor
+    public RecurringTask() {
+        super();
+        this.frequency = 0; 
+        this.endDate = 0.0f; 
+        this.antiTasks = new ArrayList<>(); 
+    }
+
+
     public AntiTask getAntiTask(int position){
         return this.antiTasks.get(position);
     }

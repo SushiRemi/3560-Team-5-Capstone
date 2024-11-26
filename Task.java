@@ -3,9 +3,9 @@ public class Task {
     private String type;
     private float startTime;
     private float duration;
-    private int date; 
+    private int date;
 
-    public Task(String name, String type, float startTime, float duration, int date){
+    public Task(String name, String type, float startTime, float duration, int date) {
         this.name = name;
         this.type = type;
         this.startTime = startTime;
@@ -13,43 +13,52 @@ public class Task {
         this.date = date;
     }
 
-    public String getName(){
+    // No-argument constructor
+    public Task() {
+        this.name = "";
+        this.type = "";
+        this.startTime = 0.0f;
+        this.duration = 0.0f;
+        this.date = 0;
+    }
+
+    public String getName() {
         return name;
     }
 
-    public String getType(){
+    public String getType() {
         return type;
     }
 
-    public float getStartTime(){
+    public float getStartTime() {
         return startTime;
     }
 
-    public float getDuration(){
+    public float getDuration() {
         return duration;
     }
 
-    public int getDate(){
+    public int getDate() {
         return date;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
-    public void setType(String type){
+    public void setType(String type) {
         this.type = type;
     }
 
-    public void setStartTime(float startTime){
+    public void setStartTime(float startTime) {
         this.startTime = startTime;
     }
 
-    public void setDuration(float duration){
+    public void setDuration(float duration) {
         this.duration = duration;
     }
 
-    public void setDate(int date){
+    public void setDate(int date) {
         this.date = date;
     }
 }

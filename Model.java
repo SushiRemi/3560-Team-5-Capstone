@@ -15,20 +15,37 @@ public class Model {
 
     public void createTask(String taskName, String taskType, 
                             Float startDate, Float duration,
-                            Float endDate, Integer Frequency){
+                            Float endDate, Integer frequency){
         // create new task
-        Task newTask = new Task();
+        Task newTask;
+
+        if(taskType.equalsIgnoreCase("transient")){
+            newTask = new TransientTask();
+        }else if (taskType.equalsIgnoreCase("recurring")) {
+            newTask = new RecurringTask();
+        } else if (taskType.equalsIgnoreCase("anti")){
+            newTask = new AntiTask();
+        }
         
         // set attributes to new task
         newTask.setName(taskName);
         newTask.setType(taskType);
         newTask.setStartTime(startDate);
         newTask.setDuration(duration);
-        newTask.setEndDate(taskName);
-        newTask.setFrequency(Frequency);
+        if (!taskType.equalsIgnoreCase("transient")) {
+            if (newTask instanceof RecurringTask) {
+                ((RecurringTask) newTask).setEndDate(endDate);
+                ((RecurringTask) newTask).setFrequency(frequency);
+            } else if (newTask instanceof AntiTask) {
+                ((AntiTask) newTask).setEndDate(endDate);
+            } else {
+                System.out.println("The task type does not support an end date.");
+            }
+        }
+
         
         // add task to task list, if no schedule conflicts
-        if(checkTimeConflicts(newTask)){
+        if(checkTaskConflicts(newTask) == true){
             TaskList.add(newTask);
         }else{
             System.out.println("New Task conflicts with existing tasks!");
@@ -74,16 +91,25 @@ public class Model {
                 safelyEditTaskTime(argument, task, "start");
                 break;
             case "edit end time":
+            if(!task.getType().equalsIgnoreCase("transient")){
                 safelyEditTaskTime(argument, task, "end");
+            }else{
+                System.out.println("Task Does not have Duration!");
+            }
                 break;
             case "edit duration":
+            if(task.getType().equalsIgnoreCase("transient")){
                 safelyEditTaskDuration(argument, task);
+            }else{
+                System.out.println("Task Does not have Duration!");
+            }
                 break;
             case "edit frequency":
-                editTaskFrequency(argument, task);
-                break;
-            case "edit type":
-                editTaskType(argument, task);
+                if(!task.getType().equalsIgnoreCase("transient")){
+                    editTaskFrequency(argument, task);
+                }else{
+                    System.out.println("Task Does not have Frequency!");
+                }
                 break;
             default:
                 System.out.println("Invalid operation!");
@@ -118,9 +144,9 @@ public class Model {
     }    
 
     private void safelyEditTaskTime(String newTime, Task task, String type) {
-        // Store original time
+        // Store original start time and calculate end time using duration
         float originalStartTime = task.getStartTime();
-        float originalEndTime = task.getEndTime();
+        float originalEndTime = originalStartTime + task.getDuration();
     
         // Update time
         try {
@@ -128,14 +154,21 @@ public class Model {
             if (type.equals("start")) {
                 task.setStartTime(newTimeValue);
             } else if (type.equals("end")) {
-                task.setEndTime(newTimeValue);
+                if (task instanceof RecurringTask || task instanceof AntiTask) {
+                    // Adjust end time only for tasks that support it
+                    float duration = task.getDuration();
+                    task.setStartTime(newTimeValue - duration);
+                } else {
+                    System.out.println("End time adjustment not supported for this task type.");
+                    return;
+                }
             }
     
             // Check for conflicts
-            if (!checkTimeConflicts(task)) {
-                // Revert to original time if conflict
+            if (!checkTaskConflicts(task)) {
+                // Revert to original times if conflict
                 task.setStartTime(originalStartTime);
-                task.setEndTime(originalEndTime);
+                task.setDuration(originalEndTime - originalStartTime);
                 System.out.println("Conflict detected! Time not updated.");
             } else {
                 System.out.println("Task time updated successfully!");
@@ -153,7 +186,7 @@ public class Model {
         task.setDuration(Float.parseFloat(newDuration));
     
         // Check for conflicts
-        if (!checkTimeConflicts(task)) {
+        if (!checkTaskConflicts(task)) {
             // Revert to original duration if conflict
             task.setDuration(originalDuration);
             System.out.println("Conflict detected! Duration not updated.");
@@ -163,21 +196,33 @@ public class Model {
     }
 
     private void editTaskFrequency(String newFrequency, Task task) {
-        task.setFrequency(newFrequency);
-        System.out.println("Task frequency updated successfully!");
+        // Check if task supports frequency
+        if (task instanceof RecurringTask) {
+            try {
+                int frequency = Integer.parseInt(newFrequency);
+                ((RecurringTask) task).setFrequency(frequency);
+                System.out.println("Task frequency updated successfully!");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid frequency format! Please enter a valid integer value.");
+            }
+        } else {
+            System.out.println("Frequency cannot be set for this task type.");
+        }
     }
-    private void editTaskType(String newType, Task task) {
-        task.setType(newType);
-        System.out.println("Task type updated successfully!");
-    }    
 
-    private boolean checkTimeConflicts(Task newTask) {
+    // Returns FALSE if conflicts, TRUE if it is OK
+    private boolean checkTaskConflicts(Task newTask) {
         for (int i = 0; i < TaskList.size(); i++) {
             Task existingTask = TaskList.get(i);
             // Check if the tasks overlap
-            if (newTask.getStartTime() < existingTask.getEndDate() && newTask.getEndDate() > existingTask.getStartTime()) {
-                return false; // Conflict found
-            }
+        // Calculate end times dynamically using startTime and duration
+        float existingTaskEndTime = existingTask.getStartTime() + existingTask.getDuration();
+        float newTaskEndTime = newTask.getStartTime() + newTask.getDuration();
+
+        // Check if the tasks overlap
+        if (newTask.getStartTime() < existingTaskEndTime && newTaskEndTime > existingTask.getStartTime()) {
+            return false; // Conflict found
+        }
         }
         return true; // No conflicts
     }
