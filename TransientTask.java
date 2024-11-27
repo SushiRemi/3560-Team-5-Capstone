@@ -13,5 +13,13 @@ public class TransientTask extends Task {
         super();
         this.antiTask = null;
     }
+
+    public void setAntiTask(AntiTask antiTask){
+        this.antiTask = antiTask;
+    }
+
+    public AntiTask getAntiTask(){
+        return this.antiTask;
+    }
     //TransientTask is a subclass of Task but does not require additional features. The Model class will handle the differences between the two.
 }
