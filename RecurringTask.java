@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class RecurringTask extends Task {
     private int frequency;
     private float endDate;
-    private ArrayList<AntiTask> antiTasks;
+    private final ArrayList<AntiTask> antiTasks;
 
     public RecurringTask(String name, String type, float startTime, float duration, int date, int frequency, float endDate){
         super(name, type, startTime, duration, date);
@@ -25,7 +25,7 @@ public class RecurringTask extends Task {
     public AntiTask getAntiTask(int position){
         return this.antiTasks.get(position);
     }
-    
+
     public void addAntiTask(AntiTask antiTask){
         antiTasks.add(antiTask);
     }
