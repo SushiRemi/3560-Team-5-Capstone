@@ -1,3 +1,5 @@
+import org.json.simple.*;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -16,8 +18,8 @@ public class Model {
     }
 
     public void createTask(String taskName, String taskType, 
-                            Float startDate, Float duration,
-                            Float endDate, Integer frequency){
+                            Integer startDate, Float duration,
+                            Integer endDate, Integer frequency){
         // create new task
         Task newTask;
 
@@ -27,6 +29,9 @@ public class Model {
             newTask = new RecurringTask();
         } else if (taskType.equalsIgnoreCase("anti")){
             newTask = new AntiTask();
+        } else {
+            System.out.println("Invalid Task Type!");
+            return;
         }
         
         // set attributes to new task
@@ -47,7 +52,7 @@ public class Model {
 
         
         // add task to task list, if no schedule conflicts
-        if(checkTaskConflicts(newTask) == true){
+        if(checkTaskConflicts(newTask)){
             TaskList.add(newTask);
         }else{
             System.out.println("New Task conflicts with existing tasks!");
@@ -159,7 +164,7 @@ public class Model {
         }
     
         // Write the JSON array to a file
-        try (FileWriter file = new FileWriter("schedule.json")) {
+        try (FileWriter file = new FileWriter("src/main/resources/schedule.json")) {
             file.write(tasksJsonArray.toJSONString());
             file.flush();
             System.out.println("Schedule saved to 'schedule.json'.");

@@ -134,4 +134,7 @@ public class Task {
     public void setDate(int date) {
         this.date = date;
     }
+
+    public void setEndDate(int endDate) {
+    }
 }
