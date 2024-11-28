@@ -3,7 +3,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### resources/schedule.json
+### Json
+src/main/resources/schedule.json
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
