@@ -12,9 +12,74 @@ public class Model {
         TaskList = new ArrayList<>();
     }
 
+    private boolean isValidDate(Integer date){
+        //Check for correct date format
+        int dateLength = String.valueOf(date).length();
+        System.out.println(dateLength);
+        if(dateLength != 8 || date < 0){
+            System.out.println("Error: Invalid date! J");
+            return false;
+        }
+
+        //Check for valid month and day values. Year will not be checked.
+        int year = Integer.parseInt(Integer.toString(date).substring(0, 4));
+        int month = Integer.parseInt(Integer.toString(date).substring(4, 6));
+        int day = Integer.parseInt(Integer.toString(date).substring(6));
+        System.out.println("Year: " + year);
+        System.out.println("Month: " + month);
+        System.out.println("Day: " + day);
+
+        if(month < 1 || month > 12 || day < 1 || day > 31){
+            System.out.println("Error: Invalid date! A");
+            return false;
+        }
+
+        switch (month){
+            case 4, 6, 9, 11:
+                if (day > 30){
+                    System.out.println("Error: Invalid date! B");
+                    return false;
+                } else {
+                    break;
+                }
+            case 2:
+                if (year%4 == 0){ //year is a leap year
+                    if (day > 29){
+                        System.out.println("Error: Invalid date! C");
+                        return false;
+                    } else {
+                        break;
+                    }
+                } else { //year is not leap year
+                    if (day > 28){
+                        System.out.println("Error: Invalid date! D");
+                        return false;
+                    } else {
+                        break;
+                    }
+                }
+            default: 
+                return true;
+        }
+        return true;
+    }
+
     // Add a new task based on parameters
     public void createTask(String name, String type, Integer date, Float startTime, Float duration, Integer endDate, Integer frequency) {
 
+        if (!isValidDate(date)){
+            System.out.println("Error: Invalid Start Date!");
+            return;
+        }
+
+        if (endDate != null){
+            if (!isValidDate(endDate) || date > endDate){
+                System.out.println("Error: Invalid End Date!");
+                return;
+            }
+        }
+
+        //Check for valid start time
         if(startTime < 0 || startTime >= 24){
             System.out.println("Error: Invalid start time!");
             return;
@@ -47,7 +112,6 @@ public class Model {
         }
 
         addTask(newTask);
-        System.out.println("Task added successfully!");
     }
 
     // Add a new task to the schedule if no conflicts exist
