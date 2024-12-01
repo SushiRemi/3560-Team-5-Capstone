@@ -1,9 +1,9 @@
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class Model {
     private ArrayList<Task> TaskList;
@@ -85,11 +85,7 @@ public class Model {
             return;
         }
 
-        //Round the startTime and duration to 15 minute intervals, (.0, .25, .5, .75)
-        Float roundedStartTime = Math.round(startTime*4)/4f;
-        Float roundedDuration = Math.round(duration*4)/4f;
-
-        if(roundedDuration <= 0){
+        if(duration <= 0){
             System.out.println("Error: Invalid duration!");
             return;
         }
@@ -98,13 +94,13 @@ public class Model {
         switch (type) { //Removed the .toLowerCase(), the project specifies that the first letter must be capitalized. "Note that the spelling and capitalization of these strings must be correct!" 
             //Note: these cases should not be the literal type of task but the user given ones. I've updated them to be accurate. - Julianne
             case "Visit", "Shopping", "Appointment": //transient task types
-                newTask = new TransientTask(name, type, roundedStartTime, roundedDuration, date, null);
+                newTask = new TransientTask(name, type, startTime, duration, date, null);
                 break;
             case "Class", "Study", "Sleep", "Exercise", "Work", "Meal": //recurring task types
-                newTask = new RecurringTask(name, type, roundedStartTime, roundedDuration, date, frequency, endDate);
+                newTask = new RecurringTask(name, type, startTime, duration, date, frequency, endDate);
                 break;
             case "Cancellation": //anti task types
-                newTask = new AntiTask(name, type, roundedStartTime, roundedDuration, date);
+                newTask = new AntiTask(name, type, startTime, duration, date);
                 break;
             default:
                 System.out.println("Error: Invalid task type!");

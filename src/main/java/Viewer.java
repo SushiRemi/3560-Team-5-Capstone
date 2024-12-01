@@ -1,8 +1,8 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import javax.swing.*;
 
 public class Viewer extends JFrame {
     private Controller controller;
@@ -34,13 +34,13 @@ public class Viewer extends JFrame {
         panel.add(nameField);
         panel.add(new JLabel("Type:"));
         panel.add(typeField);
-        panel.add(new JLabel("Start Date:"));
+        panel.add(new JLabel("Start Date (YYYYMMDD):"));
         panel.add(startDateField);
-        panel.add(new JLabel("Start Time:"));
+        panel.add(new JLabel("Start Time (HH:MM):"));
         panel.add(startTimeField);
-        panel.add(new JLabel("Duration:"));
+        panel.add(new JLabel("Duration (HH:MM):"));
         panel.add(durationField);
-        panel.add(new JLabel("End Date:"));
+        panel.add(new JLabel("End Date (YYYYMMDD):"));
         panel.add(endDateField);
         panel.add(new JLabel("Frequency:"));
         panel.add(frequencyField);
@@ -48,12 +48,23 @@ public class Viewer extends JFrame {
         JButton createButton = new JButton("Create Task");
         createButton.addActionListener(new ActionListener() {
             @Override
+            // rounding moved to here 
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();
                 String type = typeField.getText();
                 Integer startDate = Integer.parseInt(startDateField.getText());
-                Float startTime = Float.parseFloat(startTimeField.getText());
-                Float duration = Float.parseFloat(durationField.getText());
+                String startTimeTemp = startTimeField.getText();
+                Float hour = Float.valueOf(startTimeTemp.substring(0,2)); // hh:mm
+                Integer minute  = Integer.valueOf(startTimeTemp.substring(3, 5));
+                System.out.println("minute: " + minute);
+                Float min = Float.valueOf(minute / 15)*.25f;
+                System.out.println("changed minute: " + min);
+                Float startTime = hour + min;
+                String durationTemp = durationField.getText();
+                hour = Float.valueOf(durationTemp.substring(0,2)); // hh:mm
+                minute  = Integer.valueOf(durationTemp.substring(3, 5));
+                min = Float.valueOf(minute / 15)*.25f;
+                Float duration = hour + min;
                 Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
                 Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
                 controller.createTask(name, type, startDate, startTime, duration, endDate, frequency);
