@@ -104,8 +104,20 @@ public class Viewer extends JFrame {
     public void updateTaskList(ArrayList<Task> tasks) {
         taskListModel.clear();
         for (Task task : tasks) {
+            String date = String.valueOf(task.getDate());
+
+            String year = date.substring(0,4);
+            String month = date.substring(4,6);
+            String day = date.substring(6,8);
+            date = month + "/" + day + "/" + year;
+
             float endTime = task.getStartTime() + task.getDuration();
-            taskListModel.addElement(task.getName() + " - " + task.getType() + " - Start: " + task.getStartTime() + " - End: " + endTime);
+            int endHour = (int) Math.floor(endTime);
+            int endMinute = (int)((endTime- endHour)*60);
+
+            int startHour = (int) Math.floor(task.getStartTime());
+            int startMinute = (int)((task.getStartTime() - startHour)*60);
+            taskListModel.addElement(task.getName() + " - " + task.getType() + " - "+ date + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
         }
     }
 
