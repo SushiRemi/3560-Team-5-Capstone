@@ -15,14 +15,16 @@ public class Model {
     // Add a new task based on parameters
     public void createTask(String name, String type, Integer date, Float startTime, Float duration, Integer endDate, Integer frequency) {
         Task newTask;
-        switch (type.toLowerCase()) {
-            case "transient":
+        switch (type) { //Removed the .toLowerCase(), the project specifies that the first letter must be capitalized. "Note that the spelling and capitalization of these strings must be correct!" 
+            //Note: these cases should not be the literal type of task but the user given ones. I've updated them to be accurate. - Julianne
+            //Note 2: Furthermore, this would be a good place to do error checking to make sure that users do not create invalid tasks.
+            case "Visit", "Shopping", "Appointment": //transient task types
                 newTask = new TransientTask(name, type, startTime, duration, date, null);
                 break;
-            case "recurring":
+            case "Class", "Study", "Sleep", "Exercise", "Work", "Meal": //recurring task types
                 newTask = new RecurringTask(name, type, startTime, duration, date, frequency, endDate);
                 break;
-            case "anti":
+            case "Cancellation": //anti task types
                 newTask = new AntiTask(name, type, startTime, duration, date);
                 break;
             default:
