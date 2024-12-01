@@ -1,138 +1,115 @@
-import org.json.simple.*;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.UUID;
-
-import javax.lang.model.type.NullType;
-import javax.swing.plaf.TreeUI;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner; 
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Model {
     private ArrayList<Task> TaskList;
 
-    public Model(){
-        TaskList = new ArrayList<Task>();
+    public Model() {
+        TaskList = new ArrayList<>();
     }
 
-    public void createTask(String taskName, String taskType, 
-                            Integer startDate, Float duration,
-                            Integer endDate, Integer frequency){
-        // create new task
+    // Add a new task based on parameters
+    public void createTask(String name, String type, Integer date, Float duration, Integer endDate, Integer frequency) {
         Task newTask;
-
-        if(taskType.equalsIgnoreCase("transient")){
-            newTask = new TransientTask();
-        }else if (taskType.equalsIgnoreCase("recurring")) {
-            newTask = new RecurringTask();
-        } else if (taskType.equalsIgnoreCase("anti")){
-            newTask = new AntiTask();
-        } else {
-            System.out.println("Invalid Task Type!");
-            return;
-        }
-        
-        // set attributes to new task
-        newTask.setName(taskName);
-        newTask.setType(taskType);
-        newTask.setStartTime(startDate);
-        newTask.setDuration(duration);
-        if (!taskType.equalsIgnoreCase("transient")) {
-            if (newTask instanceof RecurringTask) {
-                ((RecurringTask) newTask).setEndDate(endDate);
-                ((RecurringTask) newTask).setFrequency(frequency);
-            } else if (newTask instanceof AntiTask) {
-                ((AntiTask) newTask).setEndDate(endDate);
-            } else {
-                System.out.println("The task type does not support an end date.");
-            }
-        }
-
-        
-        // add task to task list, if no schedule conflicts
-        if(checkTaskConflicts(newTask)){
-            TaskList.add(newTask);
-        }else{
-            System.out.println("New Task conflicts with existing tasks!");
-        }
-        
-    }
-    public Integer getTaskByName(String taskName){
-        for( int i = 0; i < TaskList.size(); i++){
-            if(TaskList.get(i).getName().equals(taskName)){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public void deleteTask(String taskName){
-        int index = getTaskByName(taskName);
-        if(index != -1){
-            TaskList.remove(index);
-        }else{
-            System.out.println("Object not found");
-        }        
-    }
-    /*
-     * need more clarification on how this will work
-     */
-    public void editTask(String operation, String taskName, String argument){
-        int index = getTaskByName(taskName);
-        if (index == -1){
-            System.out.println("Task not found!");
-            return;
-        }
-        
-        // Task in reference
-        Task task = TaskList.get(index);
-
-        // Call appropriate functions
-        switch (operation) {
-            case "edit name":
-                editTaskName(argument, task);
+        switch (type.toLowerCase()) {
+            case "transient":
+                newTask = new TransientTask(name, type, date.floatValue(), duration, date, null);
                 break;
-            case "edit start time":
-                safelyEditTaskTime(argument, task, "start");
+            case "recurring":
+                newTask = new RecurringTask(name, type, date.floatValue(), duration, date, frequency, endDate);
                 break;
-            case "edit end time":
-            if(!task.getType().equalsIgnoreCase("transient")){
-                safelyEditTaskTime(argument, task, "end");
-            }else{
-                System.out.println("Task Does not have Duration!");
-            }
-                break;
-            case "edit duration":
-            if(task.getType().equalsIgnoreCase("transient")){
-                safelyEditTaskDuration(argument, task);
-            }else{
-                System.out.println("Task Does not have Duration!");
-            }
-                break;
-            case "edit frequency":
-                if(!task.getType().equalsIgnoreCase("transient")){
-                    editTaskFrequency(argument, task);
-                }else{
-                    System.out.println("Task Does not have Frequency!");
-                }
+            case "anti":
+                newTask = new AntiTask(name, type, date.floatValue(), duration, date);
                 break;
             default:
-                System.out.println("Invalid operation!");
+                System.out.println("Error: Invalid task type!");
+                return;
+        }
+
+        addTask(newTask);
+    }
+
+    // Add a new task to the schedule if no conflicts exist
+    public void addTask(Task task) {
+        if (checkTaskConflicts(task)) {
+            TaskList.add(task);
+            System.out.println("Task added successfully: " + task.getName());
+        } else {
+            System.out.println("Error: Task conflicts with an existing task!");
         }
     }
 
-    // returns a DEEP COPY of the current tasks
-    public ArrayList<Task> getTasks(){
-        ArrayList<Task> newList = new ArrayList<>();
-        for (Task temp : TaskList){
-            newList.add(temp);
+    // Get a task by its name (case-sensitive)
+    public Task getTaskByName(String taskName) {
+        for (Task task : TaskList) {
+            if (task.getName().equals(taskName)) {
+                return task;
+            }
         }
-        return newList;
+        return null; // Task not found
     }
 
+    // Delete a task by name
+    public void deleteTask(String taskName) {
+        Task task = getTaskByName(taskName);
+        if (task != null) {
+            TaskList.remove(task);
+            System.out.println("Task deleted: " + taskName);
+        } else {
+            System.out.println("Error: Task not found: " + taskName);
+        }
+    }
+
+    // Edit a task by updating its attributes
+    public void editTask(String taskName, String attribute, Object newValue) {
+        Task task = getTaskByName(taskName);
+        if (task == null) {
+            System.out.println("Error: Task not found: " + taskName);
+            return;
+        }
+
+        switch (attribute.toLowerCase()) {
+            case "name":
+                task.setName((String) newValue);
+                break;
+            case "type":
+                task.setType((String) newValue);
+                break;
+            case "starttime":
+                task.setStartTime(Float.parseFloat(newValue.toString()));
+                break;
+            case "duration":
+                task.setDuration(Float.parseFloat(newValue.toString()));
+                break;
+            case "date":
+                task.setDate(Integer.parseInt(newValue.toString()));
+                break;
+            default:
+                System.out.println("Error: Unknown attribute: " + attribute);
+                return;
+        }
+
+        if (!checkTaskConflicts(task)) {
+            System.out.println("Error: Edited task conflicts with an existing task!");
+        } else {
+            System.out.println("Task updated successfully: " + task.getName());
+        }
+    }
+
+    // Return a deep copy of the task list
+    public ArrayList<Task> getTasks() {
+        ArrayList<Task> copy = new ArrayList<>();
+        for (Task task : TaskList) {
+            copy.add(task);
+        }
+        return copy;
+    }
+
+    // Save the schedule to a JSON file
     public void scheduleToFile() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the schedule filename (e.g., schedule.json): ");
@@ -142,142 +119,66 @@ public class Model {
         JSONArray tasksJsonArray = new JSONArray();
 
         for (Task task : TaskList) {
-        JSONObject taskJson = new JSONObject();
+            JSONObject taskJson = new JSONObject();
 
-        // Add common attributes
-        taskJson.put("Name", task.getName());
-        taskJson.put("Type", task.getType());
-        taskJson.put("StartTime", task.getStartTime());
-        taskJson.put("Duration", task.getDuration());
+            // Add common attributes
+            taskJson.put("Name", task.getName());
+            taskJson.put("Type", task.getType());
+            taskJson.put("StartTime", task.getStartTime());
+            taskJson.put("Duration", task.getDuration());
 
-        if (task instanceof TransientTask) {
-            // Add transient task-specific attributes
-            taskJson.put("Date", ((TransientTask) task).getDate());
-        } else if (task instanceof RecurringTask) {
-            // Add recurring task-specific attributes
-            RecurringTask recurringTask = (RecurringTask) task;
-            taskJson.put("StartDate", recurringTask.getDate());
-            taskJson.put("EndDate", recurringTask.getEndDate());
-            taskJson.put("Frequency", recurringTask.getFrequency());
-        } else if (task instanceof AntiTask) {
-            // Add anti-task-specific attributes
-            taskJson.put("Date", ((AntiTask) task).getDate());
+            if (task instanceof TransientTask) {
+                // Add transient task-specific attributes
+                taskJson.put("Date", ((TransientTask) task).getDate());
+            } else if (task instanceof RecurringTask) {
+                // Add recurring task-specific attributes
+                RecurringTask recurringTask = (RecurringTask) task;
+                taskJson.put("StartDate", recurringTask.getDate());
+                taskJson.put("EndDate", recurringTask.getEndDate());
+                taskJson.put("Frequency", recurringTask.getFrequency());
+            } else if (task instanceof AntiTask) {
+                // Add anti-task-specific attributes
+                taskJson.put("Date", ((AntiTask) task).getDate());
+            }
+
+            // Add the task to the JSON array
+            tasksJsonArray.add(taskJson);
         }
 
-        // Add the task to the JSON array
-        tasksJsonArray.add(taskJson);
+        // Write the JSON array to a file
+        try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
+            file.write(tasksJsonArray.toJSONString());
+            file.flush();
+            System.out.println("Schedule saved to '" + fileName + "'.");
+        } catch (IOException e) {
+            System.out.println("Error saving schedule: " + e.getMessage());
+        }
     }
 
-    // Write the JSON array to a file
-    try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
-        file.write(tasksJsonArray.toJSONString());
-        file.flush();
-        System.out.println("Schedule saved to '" + fileName + "'.");
-    } catch (IOException e) {
-        System.out.println("Error writing to file: " + e.getMessage());
-    }
-}
+    // Check for task conflicts
+    public boolean checkTaskConflicts(Task newTask) {
+        for (Task existingTask : TaskList) {
+            // Skip anti-tasks during conflict checks
+            if (newTask instanceof AntiTask || existingTask instanceof AntiTask) {
+                continue;
+            }
 
-    
-    public void readScheduleFromFile(){
+            // Check if the tasks overlap on the same date
+            if (newTask.getDate() == existingTask.getDate()) {
+                float existingEndTime = existingTask.getStartTime() + existingTask.getDuration();
+                float newEndTime = newTask.getStartTime() + newTask.getDuration();
 
-    }
-
-
-
-
-
-
-    // Abstracted helper functions:
-
-    private void editTaskName(String newName, Task task) {
-        task.setName(newName);
-        System.out.println("Task name updated successfully!");
-    }    
-
-    private void safelyEditTaskTime(String newTime, Task task, String type) {
-        // Store original start time and calculate end time using duration
-        float originalStartTime = task.getStartTime();
-        float originalEndTime = originalStartTime + task.getDuration();
-    
-        // Update time
-        try {
-            float newTimeValue = Float.parseFloat(newTime);
-            if (type.equals("start")) {
-                task.setStartTime(newTimeValue);
-            } else if (type.equals("end")) {
-                if (task instanceof RecurringTask || task instanceof AntiTask) {
-                    // Adjust end time only for tasks that support it
-                    float duration = task.getDuration();
-                    task.setStartTime(newTimeValue - duration);
-                } else {
-                    System.out.println("End time adjustment not supported for this task type.");
-                    return;
+                if (newTask.getStartTime() < existingEndTime && newEndTime > existingTask.getStartTime()) {
+                    return false; // Conflict detected
                 }
             }
-    
-            // Check for conflicts
-            if (!checkTaskConflicts(task)) {
-                // Revert to original times if conflict
-                task.setStartTime(originalStartTime);
-                task.setDuration(originalEndTime - originalStartTime);
-                System.out.println("Conflict detected! Time not updated.");
-            } else {
-                System.out.println("Task time updated successfully!");
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid time format! Please enter a valid float value.");
-        }
-    }
-    
-    private void safelyEditTaskDuration(String newDuration, Task task) {
-        // Store original duration
-        float originalDuration = task.getDuration();
-    
-        // Update duration
-        task.setDuration(Float.parseFloat(newDuration));
-    
-        // Check for conflicts
-        if (!checkTaskConflicts(task)) {
-            // Revert to original duration if conflict
-            task.setDuration(originalDuration);
-            System.out.println("Conflict detected! Duration not updated.");
-        } else {
-            System.out.println("Task duration updated successfully!");
-        }
-    }
-
-    private void editTaskFrequency(String newFrequency, Task task) {
-        // Check if task supports frequency
-        if (task instanceof RecurringTask) {
-            try {
-                int frequency = Integer.parseInt(newFrequency);
-                ((RecurringTask) task).setFrequency(frequency);
-                System.out.println("Task frequency updated successfully!");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid frequency format! Please enter a valid integer value.");
-            }
-        } else {
-            System.out.println("Frequency cannot be set for this task type.");
-        }
-    }
-
-    // Returns FALSE if conflicts, TRUE if it is OK
-    private boolean checkTaskConflicts(Task newTask) {
-        for (int i = 0; i < TaskList.size(); i++) {
-            Task existingTask = TaskList.get(i);
-            // Check if the tasks overlap
-        // Calculate end times dynamically using startTime and duration
-        float existingTaskEndTime = existingTask.getStartTime() + existingTask.getDuration();
-        float newTaskEndTime = newTask.getStartTime() + newTask.getDuration();
-
-        // Check if the tasks overlap
-        if (newTask.getStartTime() < existingTaskEndTime && newTaskEndTime > existingTask.getStartTime()) {
-            return false; // Conflict found
-        }
         }
         return true; // No conflicts
     }
-    
-    
+
+    // Read a schedule from a JSON file (using TaskReader)
+    public void readScheduleFromFile(String fileName) {
+        TaskReader taskReader = new TaskReader(this);
+        taskReader.readFromJson(fileName);
+    }
 }
