@@ -72,13 +72,6 @@ public class Model {
             return;
         }
 
-        if (endDate != null){
-            if (!isValidDate(endDate) || date > endDate){
-                System.out.println("Error: Invalid End Date!");
-                return;
-            }
-        }
-
         //Check for valid start time
         if(startTime < 0 || startTime >= 24){
             System.out.println("Error: Invalid start time!");
@@ -97,6 +90,26 @@ public class Model {
                 newTask = new TransientTask(name, type, startTime, duration, date, null);
                 break;
             case "Class", "Study", "Sleep", "Exercise", "Work", "Meal": //recurring task types
+                //Validate End Date
+                if (endDate != null){
+                    if (!isValidDate(endDate) || date > endDate){
+                        System.out.println("Error: Invalid End Date!");
+                        return;
+                    }
+                }
+
+                //Validate Frequency
+                if (frequency == null){
+                    System.out.println("Error: Please input a frequency.");
+                    return;
+                }
+
+                if (frequency < 1 || frequency > 365){ //frequency can not be faster than daily or slower than yearly.
+                    System.out.println("Error: Invalid Frequency!");
+                    return;
+                }
+
+
                 newTask = new RecurringTask(name, type, startTime, duration, date, frequency, endDate);
                 break;
             case "Cancellation": //anti task types
