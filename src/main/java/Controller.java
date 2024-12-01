@@ -8,8 +8,8 @@ public class Controller {
         this.viewer.setController(this);
     }
 
-    public void createTask(String name, String type, Integer startDate, Float duration, Integer endDate, Integer frequency) {
-        model.createTask(name, type, startDate, duration, endDate, frequency);
+    public void createTask(String name, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
+        model.createTask(name, type, startDate, startTime, duration, endDate, frequency);
         viewer.updateTaskList(model.getTasks());
     }
 

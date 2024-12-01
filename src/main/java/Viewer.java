@@ -25,6 +25,7 @@ public class Viewer extends JFrame {
         JTextField nameField = new JTextField();
         JTextField typeField = new JTextField();
         JTextField startDateField = new JTextField();
+        JTextField startTimeField = new JTextField();
         JTextField durationField = new JTextField();
         JTextField endDateField = new JTextField();
         JTextField frequencyField = new JTextField();
@@ -35,6 +36,8 @@ public class Viewer extends JFrame {
         panel.add(typeField);
         panel.add(new JLabel("Start Date:"));
         panel.add(startDateField);
+        panel.add(new JLabel("Start Time:"));
+        panel.add(startTimeField);
         panel.add(new JLabel("Duration:"));
         panel.add(durationField);
         panel.add(new JLabel("End Date:"));
@@ -49,10 +52,11 @@ public class Viewer extends JFrame {
                 String name = nameField.getText();
                 String type = typeField.getText();
                 Integer startDate = Integer.parseInt(startDateField.getText());
+                Float startTime = Float.parseFloat(startTimeField.getText());
                 Float duration = Float.parseFloat(durationField.getText());
                 Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
                 Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
-                controller.createTask(name, type, startDate, duration, endDate, frequency);
+                controller.createTask(name, type, startDate, startTime, duration, endDate, frequency);
             }
         });
 

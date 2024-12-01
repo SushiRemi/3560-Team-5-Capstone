@@ -13,17 +13,17 @@ public class Model {
     }
 
     // Add a new task based on parameters
-    public void createTask(String name, String type, Integer date, Float duration, Integer endDate, Integer frequency) {
+    public void createTask(String name, String type, Integer date, Float startTime, Float duration, Integer endDate, Integer frequency) {
         Task newTask;
         switch (type.toLowerCase()) {
             case "transient":
-                newTask = new TransientTask(name, type, date.floatValue(), duration, date, null);
+                newTask = new TransientTask(name, type, startTime, duration, date, null);
                 break;
             case "recurring":
-                newTask = new RecurringTask(name, type, date.floatValue(), duration, date, frequency, endDate);
+                newTask = new RecurringTask(name, type, startTime, duration, date, frequency, endDate);
                 break;
             case "anti":
-                newTask = new AntiTask(name, type, date.floatValue(), duration, date);
+                newTask = new AntiTask(name, type, startTime, duration, date);
                 break;
             default:
                 System.out.println("Error: Invalid task type!");
@@ -153,6 +153,7 @@ public class Model {
         } catch (IOException e) {
             System.out.println("Error saving schedule: " + e.getMessage());
         }
+        scanner.close();
     }
 
     // Check for task conflicts
