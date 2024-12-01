@@ -9,6 +9,7 @@ import javax.lang.model.type.NullType;
 import javax.swing.plaf.TreeUI;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Scanner; 
 
 public class Model {
     private ArrayList<Task> TaskList;
@@ -131,47 +132,52 @@ public class Model {
         }
         return newList;
     }
-    
+
     public void scheduleToFile() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the schedule filename (e.g., schedule.json): ");
+        String fileName = scanner.nextLine(); // Get filename from user input
+
         // Create a JSON array to hold tasks
         JSONArray tasksJsonArray = new JSONArray();
-    
+
         for (Task task : TaskList) {
-            JSONObject taskJson = new JSONObject();
-    
-            // Add common attributes
-            taskJson.put("Name", task.getName());
-            taskJson.put("Type", task.getType());
-            taskJson.put("StartTime", task.getStartTime());
-            taskJson.put("Duration", task.getDuration());
-    
-            if (task instanceof TransientTask) {
-                // Add transient task-specific attributes
-                taskJson.put("Date", ((TransientTask) task).getDate());
-            } else if (task instanceof RecurringTask) {
-                // Add recurring task-specific attributes
-                RecurringTask recurringTask = (RecurringTask) task;
-                taskJson.put("StartDate", recurringTask.getDate());
-                taskJson.put("EndDate", recurringTask.getEndDate());
-                taskJson.put("Frequency", recurringTask.getFrequency());
-            } else if (task instanceof AntiTask) {
-                // Add anti-task-specific attributes
-                taskJson.put("Date", ((AntiTask) task).getDate());
-            }
-    
-            // Add the task to the JSON array
-            tasksJsonArray.add(taskJson);
+        JSONObject taskJson = new JSONObject();
+
+        // Add common attributes
+        taskJson.put("Name", task.getName());
+        taskJson.put("Type", task.getType());
+        taskJson.put("StartTime", task.getStartTime());
+        taskJson.put("Duration", task.getDuration());
+
+        if (task instanceof TransientTask) {
+            // Add transient task-specific attributes
+            taskJson.put("Date", ((TransientTask) task).getDate());
+        } else if (task instanceof RecurringTask) {
+            // Add recurring task-specific attributes
+            RecurringTask recurringTask = (RecurringTask) task;
+            taskJson.put("StartDate", recurringTask.getDate());
+            taskJson.put("EndDate", recurringTask.getEndDate());
+            taskJson.put("Frequency", recurringTask.getFrequency());
+        } else if (task instanceof AntiTask) {
+            // Add anti-task-specific attributes
+            taskJson.put("Date", ((AntiTask) task).getDate());
         }
-    
-        // Write the JSON array to a file
-        try (FileWriter file = new FileWriter("src/main/resources/schedule.json")) {
-            file.write(tasksJsonArray.toJSONString());
-            file.flush();
-            System.out.println("Schedule saved to 'schedule.json'.");
-        } catch (IOException e) {
-            System.out.println("Error writing to file: " + e.getMessage());
-        }
+
+        // Add the task to the JSON array
+        tasksJsonArray.add(taskJson);
     }
+
+    // Write the JSON array to a file
+    try (FileWriter file = new FileWriter("src/main/resources/" + fileName)) {
+        file.write(tasksJsonArray.toJSONString());
+        file.flush();
+        System.out.println("Schedule saved to '" + fileName + "'.");
+    } catch (IOException e) {
+        System.out.println("Error writing to file: " + e.getMessage());
+    }
+}
+
     
     public void readScheduleFromFile(){
 
