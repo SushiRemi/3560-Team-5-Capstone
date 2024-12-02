@@ -29,6 +29,8 @@ public class Viewer extends JFrame {
         JTextField durationField = new JTextField();
         JTextField endDateField = new JTextField();
         JTextField frequencyField = new JTextField();
+        JTextField viewStartDateField = new JTextField();
+        JTextField viewTypeField = new JTextField();
 
         panel.add(new JLabel("Name:"));
         panel.add(nameField);
@@ -44,37 +46,36 @@ public class Viewer extends JFrame {
         panel.add(endDateField);
         panel.add(new JLabel("Frequency:"));
         panel.add(frequencyField);
+        panel.add(new JLabel("View Start Date (YYYY-MM-DD):"));
+        panel.add(viewStartDateField);
+        panel.add(new JLabel("View Type (day/week/month):"));
+        panel.add(viewTypeField);
 
         JButton createButton = new JButton("Create Task");
         createButton.addActionListener(new ActionListener() {
             @Override
-            // rounding moved to here 
             public void actionPerformed(ActionEvent e) {
-                //Processing Start Time
                 String name = nameField.getText();
                 String type = typeField.getText();
                 Integer startDate = Integer.parseInt(startDateField.getText());
                 String startTimeTemp = startTimeField.getText();
-                if (startTimeTemp.length() != 5){
+                if (startTimeTemp.length() != 5) {
                     System.out.println("Error: Invalid Time Format!");
                     return;
                 }
-                Float hour = Float.valueOf(startTimeTemp.substring(0,2)); // hh:mm
-                Integer minute  = Integer.valueOf(startTimeTemp.substring(3, 5));
-                System.out.println("minute: " + minute);
-                Float min = Float.valueOf(minute / 15)*.25f;
-                System.out.println("changed minute: " + min);
+                Float hour = Float.valueOf(startTimeTemp.substring(0, 2));
+                Integer minute = Integer.valueOf(startTimeTemp.substring(3, 5));
+                Float min = Float.valueOf(minute / 15) * .25f;
                 Float startTime = hour + min;
 
-                //Processing Duration
                 String durationTemp = durationField.getText();
-                if (durationTemp.length() != 5){
+                if (durationTemp.length() != 5) {
                     System.out.println("Error: Invalid Time Format!");
                     return;
                 }
-                hour = Float.valueOf(durationTemp.substring(0,2)); // hh:mm
-                minute  = Integer.valueOf(durationTemp.substring(3, 5));
-                min = Float.valueOf(minute / 15)*.25f;
+                hour = Float.valueOf(durationTemp.substring(0, 2));
+                minute = Integer.valueOf(durationTemp.substring(3, 5));
+                min = Float.valueOf(minute / 15) * .25f;
                 Float duration = hour + min;
                 Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
                 Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
@@ -97,13 +98,39 @@ public class Viewer extends JFrame {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.saveScheduleToFile();
+                String fileName = JOptionPane.showInputDialog("Enter the filename to write to (e.g., schedule.json):");
+                if (fileName != null && !fileName.trim().isEmpty()) {
+                    controller.saveScheduleToFile(fileName);
+                }
+            }
+        });
+
+        JButton viewButton = new JButton("View Schedule");
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String startDate = viewStartDateField.getText();
+                String viewType = viewTypeField.getText();
+                controller.viewSchedule(startDate, viewType);
+            }
+        });
+
+        JButton readButton = new JButton("Read from File");
+        readButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String fileName = JOptionPane.showInputDialog("Enter the filename to read from (e.g., schedule.json):");
+                if (fileName != null && !fileName.trim().isEmpty()) {
+                    controller.readScheduleFromFile(fileName);
+                }
             }
         });
 
         panel.add(createButton);
         panel.add(deleteButton);
         panel.add(saveButton);
+        panel.add(viewButton);
+        panel.add(readButton);
 
         add(panel, BorderLayout.SOUTH);
     }
@@ -117,18 +144,18 @@ public class Viewer extends JFrame {
         for (Task task : tasks) {
             String date = String.valueOf(task.getDate());
 
-            String year = date.substring(0,4);
-            String month = date.substring(4,6);
-            String day = date.substring(6,8);
+            String year = date.substring(0, 4);
+            String month = date.substring(4, 6);
+            String day = date.substring(6, 8);
             date = month + "/" + day + "/" + year;
 
             float endTime = task.getStartTime() + task.getDuration();
             int endHour = (int) Math.floor(endTime);
-            int endMinute = (int)((endTime- endHour)*60);
+            int endMinute = (int) ((endTime - endHour) * 60);
 
             int startHour = (int) Math.floor(task.getStartTime());
-            int startMinute = (int)((task.getStartTime() - startHour)*60);
-            taskListModel.addElement(task.getName() + " - " + task.getType() + " - "+ date + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
+            int startMinute = (int) ((task.getStartTime() - startHour) * 60);
+            taskListModel.addElement(task.getName() + " - " + task.getType() + " - " + date + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
         }
     }
 

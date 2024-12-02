@@ -1,10 +1,12 @@
 public class Controller {
     private Model model;
     private Viewer viewer;
+    private Scheduler scheduler;
 
     public Controller(Model model, Viewer viewer) {
         this.model = model;
         this.viewer = viewer;
+        this.scheduler = new Scheduler(model);
         this.viewer.setController(this);
     }
 
@@ -23,7 +25,17 @@ public class Controller {
         viewer.updateTaskList(model.getTasks());
     }
 
-    public void saveScheduleToFile() {
-        model.scheduleToFile();
+    public void saveScheduleToFile(String fileName) {
+        System.out.println(fileName);
+        model.scheduleToFile(fileName);
+    }
+
+    public void viewSchedule(String startDate, String viewType) {
+        scheduler.viewSchedule(startDate, viewType);
+    }
+
+    public void readScheduleFromFile(String fileName) {
+        model.readScheduleFromFile(fileName);
+        viewer.updateTaskList(model.getTasks());
     }
 }

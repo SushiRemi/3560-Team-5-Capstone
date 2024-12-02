@@ -200,11 +200,7 @@ public class Model {
     }
 
     // Save the schedule to a JSON file
-    public void scheduleToFile() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the schedule filename (e.g., schedule.json): ");
-        String fileName = scanner.nextLine(); // Get filename from user input
-
+    public void scheduleToFile(String fileName) {
         // Create a JSON array to hold tasks
         JSONArray tasksJsonArray = new JSONArray();
 
@@ -243,7 +239,6 @@ public class Model {
         } catch (IOException e) {
             System.out.println("Error saving schedule: " + e.getMessage());
         }
-        scanner.close();
     }
 
     // Check for task conflicts
@@ -269,6 +264,7 @@ public class Model {
 
     // Read a schedule from a JSON file (using TaskReader)
     public void readScheduleFromFile(String fileName) {
+        fileName = "src/main/resources/" + fileName;
         TaskReader taskReader = new TaskReader(this);
         taskReader.readFromJson(fileName);
     }
