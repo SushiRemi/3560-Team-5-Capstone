@@ -50,17 +50,28 @@ public class Viewer extends JFrame {
             @Override
             // rounding moved to here 
             public void actionPerformed(ActionEvent e) {
+                //Processing Start Time
                 String name = nameField.getText();
                 String type = typeField.getText();
                 Integer startDate = Integer.parseInt(startDateField.getText());
                 String startTimeTemp = startTimeField.getText();
+                if (startTimeTemp.length() != 5){
+                    System.out.println("Error: Invalid Time Format!");
+                    return;
+                }
                 Float hour = Float.valueOf(startTimeTemp.substring(0,2)); // hh:mm
                 Integer minute  = Integer.valueOf(startTimeTemp.substring(3, 5));
                 System.out.println("minute: " + minute);
                 Float min = Float.valueOf(minute / 15)*.25f;
                 System.out.println("changed minute: " + min);
                 Float startTime = hour + min;
+
+                //Processing Duration
                 String durationTemp = durationField.getText();
+                if (durationTemp.length() != 5){
+                    System.out.println("Error: Invalid Time Format!");
+                    return;
+                }
                 hour = Float.valueOf(durationTemp.substring(0,2)); // hh:mm
                 minute  = Integer.valueOf(durationTemp.substring(3, 5));
                 min = Float.valueOf(minute / 15)*.25f;
