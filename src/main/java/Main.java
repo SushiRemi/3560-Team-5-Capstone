@@ -1,13 +1,25 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
         // Create a new Model instance
         Model model = new Model();
+        Scheduler scheduler = new Scheduler(model);
 
         // Create some tasks
-        model.createTask("Task 1", "transient", 9, 3.0f, 1.0f, 10, null);
-        model.createTask("Task 2", "recurring", 10, 12.0f, 1.0f, 11, 2);
-        model.createTask("Task 3", "anti", 11, 7.5f, 1.0f, 12, null);
+        model.createTask("Task 1", "Appointment", 20241202, 15.0f, 1.0f, null, null);
+        model.createTask("Task 2", "Class", 20241203, 12.0f, 1.75f, 20250528, 7);
+        model.createTask("Task 3", "Cancellation", 20241203, 12.0f, 1.75f, null, null);
 
+        // User input for viewing schedule
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter start date (yyyy-MM-dd): ");
+        String startDate = scanner.nextLine();
+        System.out.print("View schedule for (day/week/month): ");
+        String viewType = scanner.nextLine();
+
+        scheduler.viewSchedule(startDate, viewType);
+        
         // Print all tasks
         System.out.println("All tasks:");
         for (Task task : model.getTasks()) {
