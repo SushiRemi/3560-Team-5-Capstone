@@ -17,7 +17,7 @@ public class Model {
         int dateLength = String.valueOf(date).length();
         System.out.println(dateLength);
         if(dateLength != 8 || date < 0){
-            System.out.println("Error: Invalid date! J");
+            //DEBUG System.out.println("Error: Invalid date! J");
             return false;
         }
 
@@ -30,14 +30,14 @@ public class Model {
         System.out.println("Day: " + day);
 
         if(month < 1 || month > 12 || day < 1 || day > 31){
-            System.out.println("Error: Invalid date! A");
+            //DEBUG System.out.println("Error: Invalid date! A");
             return false;
         }
 
         switch (month){
             case 4, 6, 9, 11:
                 if (day > 30){
-                    System.out.println("Error: Invalid date! B");
+                    //DEBUG System.out.println("Error: Invalid date! B");
                     return false;
                 } else {
                     break;
@@ -45,14 +45,14 @@ public class Model {
             case 2:
                 if (year%4 == 0){ //year is a leap year
                     if (day > 29){
-                        System.out.println("Error: Invalid date! C");
+                        //DEBUG System.out.println("Error: Invalid date! C");
                         return false;
                     } else {
                         break;
                     }
                 } else { //year is not leap year
                     if (day > 28){
-                        System.out.println("Error: Invalid date! D");
+                        //DEBUG System.out.println("Error: Invalid date! D");
                         return false;
                     } else {
                         break;
