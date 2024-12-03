@@ -46,5 +46,6 @@ public class Main {
 
         // Save schedule to file
         model.scheduleToFile("schedule.json");
+        scanner.close();
     }
 }
