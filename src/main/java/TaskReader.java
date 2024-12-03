@@ -64,18 +64,18 @@ public class TaskReader {
         float startTime = Float.parseFloat(taskJson.get("StartTime").toString());
         float duration = Float.parseFloat(taskJson.get("Duration").toString());
 
-        switch (type.toLowerCase()) {
-            case "visit", "shopping", "appointment":
+        switch (type) { //removed to lowercase, since the capitalization needs to be exact.
+            case "Visit", "Shopping", "Appointment": //transient task types
                 int date = Integer.parseInt(taskJson.get("Date").toString());
                 return new TransientTask(name, type, startTime, duration, date, null);
 
-            case "class", "study", "sleep", "exercise", "work", "meal":
+            case "Class", "Study", "Sleep", "Exercise", "Work", "Meal": //recurring task types
                 int startDate = Integer.parseInt(taskJson.get("StartDate").toString());
                 int endDate = Integer.parseInt(taskJson.get("EndDate").toString());
                 int frequency = Integer.parseInt(taskJson.get("Frequency").toString());
                 return new RecurringTask(name, type, startTime, duration, startDate, frequency, endDate);
 
-            case "cancellation":
+            case "Cancellation": //anti task types
                 int antiDate = Integer.parseInt(taskJson.get("Date").toString());
                 return new AntiTask(name, type, startTime, duration, antiDate);
 
