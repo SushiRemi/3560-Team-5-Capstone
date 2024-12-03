@@ -101,9 +101,9 @@ public class Viewer extends JFrame {
         dialog.add(typeField);
         dialog.add(new JLabel("Start Date (YYYYMMDD):"));
         dialog.add(startDateField);
-        dialog.add(new JLabel("Start Time (HH:MM):"));
+        dialog.add(new JLabel("Start Time (float, e.g., 15.0):"));
         dialog.add(startTimeField);
-        dialog.add(new JLabel("Duration (HH:MM):"));
+        dialog.add(new JLabel("Duration (float, e.g., 1.0):"));
         dialog.add(durationField);
         dialog.add(new JLabel("End Date (YYYYMMDD):"));
         dialog.add(endDateField);
@@ -117,25 +117,8 @@ public class Viewer extends JFrame {
                 String name = nameField.getText();
                 String type = typeField.getText();
                 Integer startDate = Integer.parseInt(startDateField.getText());
-                String startTimeTemp = startTimeField.getText();
-                if (startTimeTemp.length() != 5) {
-                    System.out.println("Error: Invalid Time Format!");
-                    return;
-                }
-                Float hour = Float.valueOf(startTimeTemp.substring(0, 2));
-                Integer minute = Integer.valueOf(startTimeTemp.substring(3, 5));
-                Float min = Float.valueOf(minute / 15) * .25f;
-                Float startTime = hour + min;
-
-                String durationTemp = durationField.getText();
-                if (durationTemp.length() != 5) {
-                    System.out.println("Error: Invalid Time Format!");
-                    return;
-                }
-                hour = Float.valueOf(durationTemp.substring(0, 2));
-                minute = Integer.valueOf(durationTemp.substring(3, 5));
-                min = Float.valueOf(minute / 15) * .25f;
-                Float duration = hour + min;
+                Float startTime = Float.parseFloat(startTimeField.getText());
+                Float duration = Float.parseFloat(durationField.getText());
                 Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
                 Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
                 controller.createTask(name, type, startDate, startTime, duration, endDate, frequency);
