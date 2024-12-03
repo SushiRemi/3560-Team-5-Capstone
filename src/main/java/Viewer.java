@@ -1,6 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
@@ -85,30 +84,51 @@ public class Viewer extends JFrame {
     private void showTaskEntryDialog() {
         JDialog dialog = new JDialog(this, "Create Task", true);
         dialog.setSize(400, 300);
-        dialog.setLayout(new GridLayout(0, 2));
+        dialog.setLayout(new BorderLayout());
 
+        JPanel mainPanel = new JPanel(new GridLayout(0, 2));
         JTextField nameField = new JTextField();
         JComboBox<String> typeBox = new JComboBox<>(new String[]{"Visit", "Shopping", "Appointment", "Class", "Study", "Sleep", "Exercise", "Work", "Meal", "Cancellation"});
         JTextField startDateField = new JTextField();
         JTextField startTimeField = new JTextField();
         JTextField durationField = new JTextField();
+
+        mainPanel.add(new JLabel("Name:"));
+        mainPanel.add(nameField);
+        mainPanel.add(new JLabel("Type:"));
+        mainPanel.add(typeBox);
+        mainPanel.add(new JLabel("Start Date (YYYYMMDD):"));
+        mainPanel.add(startDateField);
+        mainPanel.add(new JLabel("Start Time (float, e.g., 15.0):"));
+        mainPanel.add(startTimeField);
+        mainPanel.add(new JLabel("Duration (float, e.g., 1.0):"));
+        mainPanel.add(durationField);
+
+        JPanel cardPanel = new JPanel(new CardLayout());
+        JPanel transientPanel = new JPanel();
+        JPanel recurringPanel = new JPanel(new GridLayout(0, 2));
+
         JTextField endDateField = new JTextField();
         JTextField frequencyField = new JTextField();
+        recurringPanel.add(new JLabel("End Date (YYYYMMDD):"));
+        recurringPanel.add(endDateField);
+        recurringPanel.add(new JLabel("Frequency:"));
+        recurringPanel.add(frequencyField);
 
-        dialog.add(new JLabel("Name:"));
-        dialog.add(nameField);
-        dialog.add(new JLabel("Type:"));
-        dialog.add(typeBox);
-        dialog.add(new JLabel("Start Date (YYYYMMDD):"));
-        dialog.add(startDateField);
-        dialog.add(new JLabel("Start Time (float, e.g., 15.0):"));
-        dialog.add(startTimeField);
-        dialog.add(new JLabel("Duration (float, e.g., 1.0):"));
-        dialog.add(durationField);
-        dialog.add(new JLabel("End Date (YYYYMMDD):"));
-        dialog.add(endDateField);
-        dialog.add(new JLabel("Frequency:"));
-        dialog.add(frequencyField);
+        cardPanel.add(transientPanel, "Transient");
+        cardPanel.add(recurringPanel, "Recurring");
+
+        typeBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedType = (String) e.getItem();
+                CardLayout cl = (CardLayout) (cardPanel.getLayout());
+                if (selectedType.equals("Class") || selectedType.equals("Study") || selectedType.equals("Sleep") || selectedType.equals("Exercise") || selectedType.equals("Work") || selectedType.equals("Meal")) {
+                    cl.show(cardPanel, "Recurring");
+                } else {
+                    cl.show(cardPanel, "Transient");
+                }
+            }
+        });
 
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(new ActionListener() {
@@ -126,7 +146,9 @@ public class Viewer extends JFrame {
             }
         });
 
-        dialog.add(submitButton);
+        dialog.add(mainPanel, BorderLayout.NORTH);
+        dialog.add(cardPanel, BorderLayout.CENTER);
+        dialog.add(submitButton, BorderLayout.SOUTH);
         dialog.setVisible(true);
     }
 
