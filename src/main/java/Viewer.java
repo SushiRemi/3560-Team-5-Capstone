@@ -52,17 +52,17 @@ public class Viewer extends JFrame {
             }
         });
 
-        JButton viewButton = new JButton("View Schedule");
-        viewButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String startDate = JOptionPane.showInputDialog("Enter start date (yyyy-MM-dd):");
-                String viewType = JOptionPane.showInputDialog("View schedule for (day/week/month):");
-                controller.viewSchedule(startDate, viewType);
-            }
-        });
+//        JButton viewButton = new JButton("View Schedule");
+//        viewButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                String startDate = JOptionPane.showInputDialog("Enter start date (yyyy-MM-dd):");
+//                String viewType = JOptionPane.showInputDialog("View schedule for (day/week/month):");
+//                controller.viewSchedule(startDate, viewType);
+//            }
+//        });
 
-        JButton readButton = new JButton("Read from File");
+        JButton readButton = new JButton("Load Schedule");
         readButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,7 +76,7 @@ public class Viewer extends JFrame {
         panel.add(createButton);
         panel.add(deleteButton);
         panel.add(saveButton);
-        panel.add(viewButton);
+//        panel.add(viewButton);
         panel.add(readButton);
 
         add(panel, BorderLayout.SOUTH);
@@ -88,7 +88,7 @@ public class Viewer extends JFrame {
         dialog.setLayout(new GridLayout(0, 2));
 
         JTextField nameField = new JTextField();
-        JTextField typeField = new JTextField();
+        JComboBox<String> typeBox = new JComboBox<>(new String[]{"Visit", "Shopping", "Appointment", "Class", "Study", "Sleep", "Exercise", "Work", "Meal", "Cancellation"});
         JTextField startDateField = new JTextField();
         JTextField startTimeField = new JTextField();
         JTextField durationField = new JTextField();
@@ -98,7 +98,7 @@ public class Viewer extends JFrame {
         dialog.add(new JLabel("Name:"));
         dialog.add(nameField);
         dialog.add(new JLabel("Type:"));
-        dialog.add(typeField);
+        dialog.add(typeBox);
         dialog.add(new JLabel("Start Date (YYYYMMDD):"));
         dialog.add(startDateField);
         dialog.add(new JLabel("Start Time (float, e.g., 15.0):"));
@@ -115,7 +115,7 @@ public class Viewer extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();
-                String type = typeField.getText();
+                String type = typeBox.getSelectedItem().toString();
                 Integer startDate = Integer.parseInt(startDateField.getText());
                 Float startTime = Float.parseFloat(startTimeField.getText());
                 Float duration = Float.parseFloat(durationField.getText());
