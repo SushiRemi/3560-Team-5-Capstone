@@ -22,64 +22,11 @@ public class Viewer extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(0, 2));
 
-        JTextField nameField = new JTextField();
-        JTextField typeField = new JTextField();
-        JTextField startDateField = new JTextField();
-        JTextField startTimeField = new JTextField();
-        JTextField durationField = new JTextField();
-        JTextField endDateField = new JTextField();
-        JTextField frequencyField = new JTextField();
-        JTextField viewStartDateField = new JTextField();
-        JTextField viewTypeField = new JTextField();
-
-        panel.add(new JLabel("Name:"));
-        panel.add(nameField);
-        panel.add(new JLabel("Type:"));
-        panel.add(typeField);
-        panel.add(new JLabel("Start Date (YYYYMMDD):"));
-        panel.add(startDateField);
-        panel.add(new JLabel("Start Time (HH:MM):"));
-        panel.add(startTimeField);
-        panel.add(new JLabel("Duration (HH:MM):"));
-        panel.add(durationField);
-        panel.add(new JLabel("End Date (YYYYMMDD):"));
-        panel.add(endDateField);
-        panel.add(new JLabel("Frequency:"));
-        panel.add(frequencyField);
-        panel.add(new JLabel("View Start Date (YYYY-MM-DD):"));
-        panel.add(viewStartDateField);
-        panel.add(new JLabel("View Type (day/week/month):"));
-        panel.add(viewTypeField);
-
         JButton createButton = new JButton("Create Task");
         createButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = nameField.getText();
-                String type = typeField.getText();
-                Integer startDate = Integer.parseInt(startDateField.getText());
-                String startTimeTemp = startTimeField.getText();
-                if (startTimeTemp.length() != 5) {
-                    System.out.println("Error: Invalid Time Format!");
-                    return;
-                }
-                Float hour = Float.valueOf(startTimeTemp.substring(0, 2));
-                Integer minute = Integer.valueOf(startTimeTemp.substring(3, 5));
-                Float min = Float.valueOf(minute / 15) * .25f;
-                Float startTime = hour + min;
-
-                String durationTemp = durationField.getText();
-                if (durationTemp.length() != 5) {
-                    System.out.println("Error: Invalid Time Format!");
-                    return;
-                }
-                hour = Float.valueOf(durationTemp.substring(0, 2));
-                minute = Integer.valueOf(durationTemp.substring(3, 5));
-                min = Float.valueOf(minute / 15) * .25f;
-                Float duration = hour + min;
-                Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
-                Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
-                controller.createTask(name, type, startDate, startTime, duration, endDate, frequency);
+                showTaskEntryDialog();
             }
         });
 
@@ -109,8 +56,8 @@ public class Viewer extends JFrame {
         viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String startDate = viewStartDateField.getText();
-                String viewType = viewTypeField.getText();
+                String startDate = JOptionPane.showInputDialog("Enter start date (yyyy-MM-dd):");
+                String viewType = JOptionPane.showInputDialog("View schedule for (day/week/month):");
                 controller.viewSchedule(startDate, viewType);
             }
         });
@@ -133,6 +80,71 @@ public class Viewer extends JFrame {
         panel.add(readButton);
 
         add(panel, BorderLayout.SOUTH);
+    }
+
+    private void showTaskEntryDialog() {
+        JDialog dialog = new JDialog(this, "Create Task", true);
+        dialog.setSize(400, 300);
+        dialog.setLayout(new GridLayout(0, 2));
+
+        JTextField nameField = new JTextField();
+        JTextField typeField = new JTextField();
+        JTextField startDateField = new JTextField();
+        JTextField startTimeField = new JTextField();
+        JTextField durationField = new JTextField();
+        JTextField endDateField = new JTextField();
+        JTextField frequencyField = new JTextField();
+
+        dialog.add(new JLabel("Name:"));
+        dialog.add(nameField);
+        dialog.add(new JLabel("Type:"));
+        dialog.add(typeField);
+        dialog.add(new JLabel("Start Date (YYYYMMDD):"));
+        dialog.add(startDateField);
+        dialog.add(new JLabel("Start Time (HH:MM):"));
+        dialog.add(startTimeField);
+        dialog.add(new JLabel("Duration (HH:MM):"));
+        dialog.add(durationField);
+        dialog.add(new JLabel("End Date (YYYYMMDD):"));
+        dialog.add(endDateField);
+        dialog.add(new JLabel("Frequency:"));
+        dialog.add(frequencyField);
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                String type = typeField.getText();
+                Integer startDate = Integer.parseInt(startDateField.getText());
+                String startTimeTemp = startTimeField.getText();
+                if (startTimeTemp.length() != 5) {
+                    System.out.println("Error: Invalid Time Format!");
+                    return;
+                }
+                Float hour = Float.valueOf(startTimeTemp.substring(0, 2));
+                Integer minute = Integer.valueOf(startTimeTemp.substring(3, 5));
+                Float min = Float.valueOf(minute / 15) * .25f;
+                Float startTime = hour + min;
+
+                String durationTemp = durationField.getText();
+                if (durationTemp.length() != 5) {
+                    System.out.println("Error: Invalid Time Format!");
+                    return;
+                }
+                hour = Float.valueOf(durationTemp.substring(0, 2));
+                minute = Integer.valueOf(durationTemp.substring(3, 5));
+                min = Float.valueOf(minute / 15) * .25f;
+                Float duration = hour + min;
+                Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
+                Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
+                controller.createTask(name, type, startDate, startTime, duration, endDate, frequency);
+                dialog.dispose();
+            }
+        });
+
+        dialog.add(submitButton);
+        dialog.setVisible(true);
     }
 
     public void setController(Controller controller) {
