@@ -100,7 +100,7 @@ public class RecurringTask extends Task {
      * Getter method for the end date of the recurring task.
      * @return the date at which the task will stop repeating. In the format YYYYMMDD.
      */
-    public float getEndDate(){
+    public int getEndDate(){
         return this.endDate;
     }
 
