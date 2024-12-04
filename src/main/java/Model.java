@@ -157,40 +157,89 @@ public class Model {
     }
 
     // Edit a task by updating its attributes
-    public void editTask(String taskName, String attribute, Object newValue) {
-        Task task = getTaskByName(taskName);
+    public boolean editTask(String oldName, String newName, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
+        Task task = getTaskByName(oldName);
         if (task == null) {
-            System.out.println("Error: Task not found: " + taskName);
-            return;
+            System.out.println("Error: Task not found: " + oldName);
+            return false;
         }
 
-        switch (attribute.toLowerCase()) {
-            case "name":
-                task.setName((String) newValue);
+        // Temporarily remove the task to avoid self-conflict
+        TaskList.remove(task);
+
+        // Create a new task with the updated details
+        Task updatedTask;
+        switch (type) {
+            case "Visit", "Shopping", "Appointment":
+                updatedTask = new TransientTask(newName, type, startTime, duration, startDate, null);
                 break;
-            case "type":
-                task.setType((String) newValue);
+            case "Class", "Study", "Sleep", "Exercise", "Work", "Meal":
+                updatedTask = new RecurringTask(newName, type, startTime, duration, startDate, frequency, endDate);
                 break;
-            case "starttime":
-                task.setStartTime(Float.parseFloat(newValue.toString()));
-                break;
-            case "duration":
-                task.setDuration(Float.parseFloat(newValue.toString()));
-                break;
-            case "date":
-                task.setDate(Integer.parseInt(newValue.toString()));
+            case "Cancellation":
+                updatedTask = new AntiTask(newName, type, startTime, duration, startDate);
                 break;
             default:
-                System.out.println("Error: Unknown attribute: " + attribute);
-                return;
+                System.out.println("Error: Invalid task type!");
+                TaskList.add(task); // Re-add the original task
+                return false;
         }
 
-        if (!checkTaskConflicts(task)) {
-            System.out.println("Error: Edited task conflicts with an existing task!");
+        // Check for conflicts with the updated task
+        if (checkTaskConflicts(updatedTask)) {
+            // Apply the changes
+            task.setName(newName);
+            task.setType(type);
+            task.setDate(startDate);
+            task.setStartTime(startTime);
+            task.setDuration(duration);
+            if (task instanceof RecurringTask) {
+                ((RecurringTask) task).setEndDate(endDate);
+                ((RecurringTask) task).setFrequency(frequency);
+            }
+            TaskList.add(task);
+            System.out.println("Task edited successfully: " + newName);
+            return true;
         } else {
-            System.out.println("Task updated successfully: " + task.getName());
+            System.out.println("Error: Task conflicts with an existing task!");
+            TaskList.add(task); // Re-add the original task
+            return false;
         }
     }
+//    public void editTask(String taskName, String attribute, Object newValue) {
+//        Task task = getTaskByName(taskName);
+//        if (task == null) {
+//            System.out.println("Error: Task not found: " + taskName);
+//            return;
+//        }
+//
+//        switch (attribute.toLowerCase()) {
+//            case "name":
+//                task.setName((String) newValue);
+//                break;
+//            case "type":
+//                task.setType((String) newValue);
+//                break;
+//            case "starttime":
+//                task.setStartTime(Float.parseFloat(newValue.toString()));
+//                break;
+//            case "duration":
+//                task.setDuration(Float.parseFloat(newValue.toString()));
+//                break;
+//            case "date":
+//                task.setDate(Integer.parseInt(newValue.toString()));
+//                break;
+//            default:
+//                System.out.println("Error: Unknown attribute: " + attribute);
+//                return;
+//        }
+//
+//        if (!checkTaskConflicts(task)) {
+//            System.out.println("Error: Edited task conflicts with an existing task!");
+//        } else {
+//            System.out.println("Task updated successfully: " + task.getName());
+//        }
+//    }
 
     // Return a deep copy of the task list
     public ArrayList<Task> getTasks() {

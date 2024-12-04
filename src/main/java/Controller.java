@@ -20,11 +20,6 @@ public class Controller {
         }
     }
 
-    public void editTask(String operation, String taskName, String argument) {
-        model.editTask(operation, taskName, argument);
-        viewTasks();
-    }
-
     public void deleteTask(String taskName) {
         model.deleteTask(taskName);
         viewTasks();
@@ -49,4 +44,13 @@ public class Controller {
     public void viewTasks() {
         viewer.updateTaskList(model.getTasks());
     }
+
+    public boolean editTask(String oldName, String newName, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
+        return model.editTask(oldName, newName, type, startDate, startTime, duration, endDate, frequency);
+    }
+
+    public Task getTaskByName(String taskName) {
+        return model.getTaskByName(taskName);
+    }
+
 }
