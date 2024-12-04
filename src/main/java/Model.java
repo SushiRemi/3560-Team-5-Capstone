@@ -1,17 +1,30 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+/**
+ * Model is the main data processing class for the PSS project. Stores all the tasks created by or loaded into the program.
+ */
 public class Model {
+    /**
+     * The list of Task objects.
+     */
     private ArrayList<Task> TaskList;
 
+    /**
+     * Default constructor for the Model, initializes the list of tasks.
+     */
     public Model() {
         TaskList = new ArrayList<>();
     }
 
+    /**
+     * Checks to see if an integer is in a valid date format. Date must be in format: YYYYMMDD.
+     * @param date the integer to be checked.
+     * @return true if the integer is a real date, false otherwise.
+     */
     private boolean isValidDate(Integer date){
         //Check for correct date format
         int dateLength = String.valueOf(date).length();
@@ -64,7 +77,17 @@ public class Model {
         return true;
     }
 
-    // Add a new task based on parameters
+    /**
+     * Attempts to create a new task with the given parameters. Checks for input errors.
+     * @param name  the name of the task.
+     * @param type  the type of task.
+     * @param startDate if recurring task, the first instance of the task. Otherwise the date of the task.
+     * @param startTime the start time (as a float) of the task.
+     * @param duration the duration (as a float) of the task.
+     * @param endDate if recurring task, the cutoff date of the task. Does not need to have an occurance on said date.
+     * @param frequency how often (in days) the recurring task repeats.
+     * @return true if task succesfully created, false otherwise.
+     */
     public boolean createTask(String name, String type, Integer date, Float startTime, Float duration, Integer endDate, Integer frequency) {
 
         if (!isValidDate(date)){
@@ -123,7 +146,11 @@ public class Model {
         return (addTask(newTask));
     }
 
-    // Add a new task to the schedule if no conflicts exist
+    /**
+     * Attempts to add a task to the task list
+     * @param task the task to be added.
+     * @return  true if successful, false otherwise.
+     */
     public boolean addTask(Task task) {
         if (checkTaskConflicts(task)) {
             TaskList.add(task);
@@ -135,7 +162,11 @@ public class Model {
         }
     }
 
-    // Get a task by its name (case-sensitive)
+    /**
+     * Gets a task from the task list, given a task name. Is case-sensitive.
+     * @param taskName the name of the task to find.
+     * @return the task, if found, otherwise null.
+     */
     public Task getTaskByName(String taskName) {
         for (Task task : TaskList) {
             if (task.getName().equals(taskName)) {
@@ -145,7 +176,10 @@ public class Model {
         return null; // Task not found
     }
 
-    // Delete a task by name
+    /**
+     * Deletes a specified task from the task list. If no task is found, nothing happens.
+     * @param taskName the name of the task to delete.
+     */
     public void deleteTask(String taskName) {
         Task task = getTaskByName(taskName);
         if (task != null) {
@@ -156,7 +190,18 @@ public class Model {
         }
     }
 
-    // Edit a task by updating its attributes
+    /**
+     * Attempts to edit the properties of a specified task.
+     * @param oldName the original task name.
+     * @param newName   the new task name.
+     * @param type  the new task type.
+     * @param startDate the new task start date.
+     * @param startTime the new task start time.
+     * @param duration the new task duration.
+     * @param endDate   if recurring, the new task end date.
+     * @param frequency if recurring, the new task frequency.
+     * @return true if successully edited, false otherwise.
+     */
     public boolean editTask(String oldName, String newName, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
         Task task = getTaskByName(oldName);
         if (task == null) {
@@ -206,42 +251,11 @@ public class Model {
             return false;
         }
     }
-//    public void editTask(String taskName, String attribute, Object newValue) {
-//        Task task = getTaskByName(taskName);
-//        if (task == null) {
-//            System.out.println("Error: Task not found: " + taskName);
-//            return;
-//        }
-//
-//        switch (attribute.toLowerCase()) {
-//            case "name":
-//                task.setName((String) newValue);
-//                break;
-//            case "type":
-//                task.setType((String) newValue);
-//                break;
-//            case "starttime":
-//                task.setStartTime(Float.parseFloat(newValue.toString()));
-//                break;
-//            case "duration":
-//                task.setDuration(Float.parseFloat(newValue.toString()));
-//                break;
-//            case "date":
-//                task.setDate(Integer.parseInt(newValue.toString()));
-//                break;
-//            default:
-//                System.out.println("Error: Unknown attribute: " + attribute);
-//                return;
-//        }
-//
-//        if (!checkTaskConflicts(task)) {
-//            System.out.println("Error: Edited task conflicts with an existing task!");
-//        } else {
-//            System.out.println("Task updated successfully: " + task.getName());
-//        }
-//    }
 
-    // Return a deep copy of the task list
+    /**
+     * Gets the ArrayList of tasks.
+     * @return the current task list.
+     */
     public ArrayList<Task> getTasks() {
         ArrayList<Task> copy = new ArrayList<>();
         for (Task task : TaskList) {
@@ -250,7 +264,10 @@ public class Model {
         return copy;
     }
 
-    // Save the schedule to a JSON file
+    /**
+     * Attempts to save the current schedule to a .json file.
+     * @param fileName the name of the file to save to/be created.
+     */
     public void scheduleToFile(String fileName) {
         // Create a JSON array to hold tasks
         JSONArray tasksJsonArray = new JSONArray();
@@ -292,7 +309,11 @@ public class Model {
         }
     }
 
-    // Check for task conflicts
+    /**
+     * Checks to see if a task conflicts with the current task list.
+     * @param newTask the task to check.
+     * @return  true if no conflict, false otherwise.
+     */
     public boolean checkTaskConflicts(Task newTask) {
         for (Task existingTask : TaskList) {
             // Skip anti-tasks during conflict checks
@@ -313,7 +334,10 @@ public class Model {
         return true; // No conflicts
     }
 
-    // Read a schedule from a JSON file (using TaskReader)
+    /**
+     * Reads a schedule from a JSON file (using TaskReader)
+     * @param fileName the JSON file to read from.
+     */
     public void readScheduleFromFile(String fileName) {
         fileName = "src/main/resources/" + fileName;
         TaskReader taskReader = new TaskReader(this);
