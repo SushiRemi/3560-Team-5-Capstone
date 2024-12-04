@@ -12,17 +12,14 @@ public class Controller {
 
     public void createTask(String name, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
         model.createTask(name, type, startDate, startTime, duration, endDate, frequency);
-        viewer.updateTaskList(model.getTasks());
     }
 
     public void editTask(String operation, String taskName, String argument) {
         model.editTask(operation, taskName, argument);
-        viewer.updateTaskList(model.getTasks());
     }
 
     public void deleteTask(String taskName) {
         model.deleteTask(taskName);
-        viewer.updateTaskList(model.getTasks());
     }
 
     public void saveScheduleToFile(String fileName) {
@@ -36,6 +33,9 @@ public class Controller {
 
     public void readScheduleFromFile(String fileName) {
         model.readScheduleFromFile(fileName);
+    }
+
+    public void viewTasks() {
         viewer.updateTaskList(model.getTasks());
     }
 }

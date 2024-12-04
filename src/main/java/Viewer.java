@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.*;
 
@@ -51,15 +53,13 @@ public class Viewer extends JFrame {
             }
         });
 
-//        JButton viewButton = new JButton("View Schedule");
-//        viewButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                String startDate = JOptionPane.showInputDialog("Enter start date (yyyy-MM-dd):");
-//                String viewType = JOptionPane.showInputDialog("View schedule for (day/week/month):");
-//                controller.viewSchedule(startDate, viewType);
-//            }
-//        });
+        JButton viewTasksButton = new JButton("View Tasks");
+        viewTasksButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.viewTasks();
+            }
+        });
 
         JButton readButton = new JButton("Load Schedule");
         readButton.addActionListener(new ActionListener() {
@@ -75,7 +75,7 @@ public class Viewer extends JFrame {
         panel.add(createButton);
         panel.add(deleteButton);
         panel.add(saveButton);
-//        panel.add(viewButton);
+        panel.add(viewTasksButton);
         panel.add(readButton);
 
         add(panel, BorderLayout.SOUTH);
@@ -158,22 +158,83 @@ public class Viewer extends JFrame {
 
     public void updateTaskList(ArrayList<Task> tasks) {
         taskListModel.clear();
+        ArrayList<Task> cancellationTasks = new ArrayList<>();
         for (Task task : tasks) {
-            String date = String.valueOf(task.getDate());
-
-            String year = date.substring(0, 4);
-            String month = date.substring(4, 6);
-            String day = date.substring(6, 8);
-            date = month + "/" + day + "/" + year;
-
-            float endTime = task.getStartTime() + task.getDuration();
-            int endHour = (int) Math.floor(endTime);
-            int endMinute = (int) ((endTime - endHour) * 60);
-
-            int startHour = (int) Math.floor(task.getStartTime());
-            int startMinute = (int) ((task.getStartTime() - startHour) * 60);
-            taskListModel.addElement(task.getName() + " - " + task.getType() + " - " + date + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
+            if (task instanceof AntiTask) {
+                cancellationTasks.add(task);
+            }
         }
+
+        for (Task task : tasks) {
+            if (task instanceof RecurringTask) {
+                RecurringTask recurringTask = (RecurringTask) task;
+                int frequency = recurringTask.getFrequency();
+                int endDate = recurringTask.getEndDate();
+                int currentDate = task.getDate();
+
+                while (currentDate <= endDate) {
+                    boolean isCancelled = false;
+                    String cancellationName = "";
+                    for (Task cancellationTask : cancellationTasks) {
+                        if (cancellationTask.getDate() == currentDate && cancellationTask.getStartTime() == task.getStartTime()) {
+                            isCancelled = true;
+                            cancellationName = cancellationTask.getName();
+                            break;
+                        }
+                    }
+                    if (isCancelled) {
+                        addCancelledTaskToList(task, currentDate, cancellationName);
+                    } else {
+                        addTaskToList(task, currentDate);
+                    }
+                    currentDate = incrementDate(currentDate, frequency);
+                }
+            } else if (!(task instanceof AntiTask)) {
+                addTaskToList(task, task.getDate());
+            }
+        }
+    }
+
+    private void addTaskToList(Task task, int date) {
+        String dateString = String.valueOf(date);
+        String year = dateString.substring(0, 4);
+        String month = dateString.substring(4, 6);
+        String day = dateString.substring(6, 8);
+        dateString = month + "/" + day + "/" + year;
+
+        float endTime = task.getStartTime() + task.getDuration();
+        int endHour = (int) Math.floor(endTime);
+        int endMinute = (int) ((endTime - endHour) * 60);
+
+        int startHour = (int) Math.floor(task.getStartTime());
+        int startMinute = (int) ((task.getStartTime() - startHour) * 60);
+        taskListModel.addElement(task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
+    }
+
+    private void addCancelledTaskToList(Task task, int date, String cancellationName) {
+        String dateString = String.valueOf(date);
+        String year = dateString.substring(0, 4);
+        String month = dateString.substring(4, 6);
+        String day = dateString.substring(6, 8);
+        dateString = month + "/" + day + "/" + year;
+
+        float endTime = task.getStartTime() + task.getDuration();
+        int endHour = (int) Math.floor(endTime);
+        int endMinute = (int) ((endTime - endHour) * 60);
+
+        int startHour = (int) Math.floor(task.getStartTime());
+        int startMinute = (int) ((task.getStartTime() - startHour) * 60);
+        taskListModel.addElement("<html><strike>" + task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute + "</strike> - Cancelled by " + cancellationName + "</html>");
+    }
+
+    private int incrementDate(int date, int frequency) {
+        String dateString = String.valueOf(date);
+        int year = Integer.parseInt(dateString.substring(0, 4));
+        int month = Integer.parseInt(dateString.substring(4, 6));
+        int day = Integer.parseInt(dateString.substring(6, 8));
+        LocalDate localDate = LocalDate.of(year, month, day);
+        localDate = localDate.plusDays(frequency);
+        return Integer.parseInt(localDate.format(DateTimeFormatter.BASIC_ISO_DATE));
     }
 
     public static void main(String[] args) {
