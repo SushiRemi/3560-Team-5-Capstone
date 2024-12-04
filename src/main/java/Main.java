@@ -2,6 +2,12 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        
+        Viewer.main(args);
+
+
+        //old main begin
+        /*
         // Create a new Model instance
         Model model = new Model();
         Scheduler scheduler = new Scheduler(model);
@@ -47,5 +53,7 @@ public class Main {
         // Save schedule to file
         model.scheduleToFile("schedule.json");
         scanner.close();
+        */ 
+        //old main end
     }
 }
