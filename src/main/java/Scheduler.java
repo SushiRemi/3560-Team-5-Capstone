@@ -1,6 +1,7 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Scheduler {
 
@@ -10,8 +11,8 @@ public class Scheduler {
         this.model = model;
     }
 
-    public void viewSchedule(String startDateStr, String viewType) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public ArrayList<Task> viewSchedule(String startDateStr, String viewType) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         LocalDate startDate;
 
         // Attempt to parse the start date
@@ -19,10 +20,13 @@ public class Scheduler {
             startDate = LocalDate.parse(startDateStr, formatter);
         } catch (Exception e) {
             System.out.println("Error: Invalid Start Date!");
-            return;
+            return null;
         }
 
+        System.out.println("Checking tasks for the " + viewType + " of " + startDate);
+
         List<Task> tasks = model.getTasks();
+        ArrayList<Task> taskList = new ArrayList<Task>();
         for (Task task : tasks) {
             // Check for anti-tasks logic
             if (task instanceof AntiTask) {
@@ -32,8 +36,11 @@ public class Scheduler {
             // Filtering based on the viewType
             if (isTaskInViewPeriod(task, startDate, viewType)) {
                 System.out.println(formatTask(task));
+                taskList.add(task);
             }
         }
+
+        return taskList;
     }
 
     private boolean isTaskInViewPeriod(Task task, LocalDate startDate, String viewType) {

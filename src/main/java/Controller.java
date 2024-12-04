@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Controller {
     private Model model;
     private Viewer viewer;
@@ -37,7 +39,8 @@ public class Controller {
     }
 
     public void viewSchedule(String startDate, String viewType) {
-        scheduler.viewSchedule(startDate, viewType);
+        ArrayList<Task> taskList = scheduler.viewSchedule(startDate, viewType);
+        viewer.showScheduleViewer(taskList, Integer.parseInt(startDate), viewType);
         viewTasks();
     }
 
@@ -47,6 +50,6 @@ public class Controller {
     }
 
     public void viewTasks() {
-        viewer.updateTaskList(model.getTasks());
+        viewer.updateTaskList(model.getTasks(), viewer.getListModel(), 0, null);
     }
 }
