@@ -12,27 +12,33 @@ public class Controller {
 
     public void createTask(String name, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
         model.createTask(name, type, startDate, startTime, duration, endDate, frequency);
+        viewTasks();
     }
 
     public void editTask(String operation, String taskName, String argument) {
         model.editTask(operation, taskName, argument);
+        viewTasks();
     }
 
     public void deleteTask(String taskName) {
         model.deleteTask(taskName);
+        viewTasks();
     }
 
     public void saveScheduleToFile(String fileName) {
         System.out.println(fileName);
         model.scheduleToFile(fileName);
+        viewTasks();
     }
 
     public void viewSchedule(String startDate, String viewType) {
         scheduler.viewSchedule(startDate, viewType);
+        viewTasks();
     }
 
     public void readScheduleFromFile(String fileName) {
         model.readScheduleFromFile(fileName);
+        viewTasks();
     }
 
     public void viewTasks() {
