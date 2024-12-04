@@ -27,7 +27,7 @@ public class Main {
         }
 
         // Edit a task
-        model.editTask("edit name", "Task 1", "Updated Task 1");
+//        model.editTask("edit name", "Task 1", "Updated Task 1");
 
         // Print all tasks after editing
         System.out.println("\nTasks after editing:");

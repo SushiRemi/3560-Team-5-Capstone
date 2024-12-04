@@ -104,9 +104,11 @@ public class Viewer extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String selectedTask = taskList.getSelectedValue();
                 if (selectedTask != null) {
-                    //bring up same menu as create task
-                    showTaskEntryDialog();
-                    //--controller.editTask(selectedTask.split(" - ")[0]);
+                    String taskName = selectedTask.split(" - ")[0];
+                    Task task = controller.getTaskByName(taskName);
+                    if (task != null) {
+                        showTaskEditDialog(task);
+                    }
                 }
             }
         });
@@ -119,6 +121,104 @@ public class Viewer extends JFrame {
         panel.add(readButton);
 
         add(panel, BorderLayout.SOUTH);
+    }
+
+    private void showTaskEditDialog(Task task) {
+        JDialog dialog = new JDialog(this, "Edit Task", true);
+        dialog.setSize(400, 300);
+        dialog.setLayout(new FlowLayout());
+
+        JPanel mainPanel = new JPanel(new GridLayout(0, 2));
+        JTextField nameField = new JTextField(task.getName());
+        JComboBox<String> typeBox = new JComboBox<>(new String[]{"Visit", "Shopping", "Appointment", "Class", "Study", "Sleep", "Exercise", "Work", "Meal", "Cancellation"});
+        typeBox.setSelectedItem(task.getType());
+        JTextField startDateField = new JTextField(String.valueOf(task.getDate()));
+        JTextField startTimeField = new JTextField(String.valueOf(task.getStartTime()));
+        JTextField durationField = new JTextField(String.valueOf(task.getDuration()));
+
+        mainPanel.add(new JLabel("Name:"));
+        mainPanel.add(nameField);
+        mainPanel.add(new JLabel("Type:"));
+        mainPanel.add(typeBox);
+        mainPanel.add(new JLabel("Start Date (YYYYMMDD):"));
+        mainPanel.add(startDateField);
+        mainPanel.add(new JLabel("Start Time (float, e.g., 15.0):"));
+        mainPanel.add(startTimeField);
+        mainPanel.add(new JLabel("Duration (float, e.g., 1.0):"));
+        mainPanel.add(durationField);
+
+        JPanel cardPanel = new JPanel(new CardLayout());
+        JPanel transientPanel = new JPanel();
+        JPanel recurringPanel = new JPanel(new GridLayout(0, 2));
+
+        JTextField endDateField = new JTextField();
+        JTextField frequencyField = new JTextField();
+        if (task instanceof RecurringTask) {
+            RecurringTask recurringTask = (RecurringTask) task;
+            endDateField.setText(String.valueOf(recurringTask.getEndDate()));
+            frequencyField.setText(String.valueOf(recurringTask.getFrequency()));
+        }
+        recurringPanel.add(new JLabel("End Date (YYYYMMDD):"));
+        recurringPanel.add(endDateField);
+        recurringPanel.add(new JLabel("Frequency:"));
+        recurringPanel.add(frequencyField);
+
+        cardPanel.add(transientPanel, "Transient");
+        cardPanel.add(recurringPanel, "Recurring");
+
+        typeBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedType = (String) e.getItem();
+                CardLayout cl = (CardLayout) (cardPanel.getLayout());
+                if (selectedType.equals("Class") || selectedType.equals("Study") || selectedType.equals("Sleep") || selectedType.equals("Exercise") || selectedType.equals("Work") || selectedType.equals("Meal")) {
+                    cl.show(cardPanel, "Recurring");
+                } else {
+                    cl.show(cardPanel, "Transient");
+                }
+            }
+        });
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String name = nameField.getText();
+                    String type = typeBox.getSelectedItem().toString();
+                    Integer startDate = Integer.parseInt(startDateField.getText());
+                    Float startTime = Float.parseFloat(startTimeField.getText());
+                    Float duration = Float.parseFloat(durationField.getText());
+                    Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
+                    Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
+
+                    if (controller.editTask(task.getName(), name, type, startDate, startTime, duration, endDate, frequency)) {
+                        JOptionPane.showMessageDialog(mainPanel, "Task successfully edited", "Success!", JOptionPane.INFORMATION_MESSAGE);
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(mainPanel, "Task information invalid, or conflicts with another task.", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception submitException) {
+                    JOptionPane.showMessageDialog(mainPanel, "Task information invalid, or conflicts with another task.", "ERROR", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+
+        JPanel submitExitPanel = new JPanel(new GridLayout(0, 2));
+        submitExitPanel.add(submitButton);
+        submitExitPanel.add(exitButton);
+
+        dialog.add(mainPanel);
+        dialog.add(cardPanel);
+        dialog.add(submitExitPanel);
+        dialog.setVisible(true);
     }
 
     private void showTaskEntryDialog() {
