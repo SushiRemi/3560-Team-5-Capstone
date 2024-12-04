@@ -5,16 +5,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.*;
 
-
+/**
+ * Viewer connects with the controller to create a GUI for the user to create,view,edit,delete tasks, and more from.
+ */
 public class Viewer extends JFrame {
     private Controller controller;
     private DefaultListModel<String> taskListModel;
     private JList<String> taskList;
 
+    /**
+     * Returns the taskListModel
+     * @return  the Viewer's taskListModel.
+     */
     public DefaultListModel<String> getListModel(){
         return taskListModel;
     }
 
+    /**
+     * Constructor for the Viewer, creates the GUI window for the user.
+     */
     public Viewer() {
         setTitle("Task Scheduler");
         setSize(600, 400);
@@ -122,6 +131,10 @@ public class Viewer extends JFrame {
         add(panel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Creates the dialog box for editing a task.
+     * @param task the task to be edited.
+     */
     private void showTaskEditDialog(Task task) {
         JDialog dialog = new JDialog(this, "Edit Task", true);
         dialog.setSize(400, 300);
@@ -220,6 +233,9 @@ public class Viewer extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Creates the dialog box for creating a new task.
+     */
     private void showTaskEntryDialog() {
         JDialog dialog = new JDialog(this, "Create Task", true);
         dialog.setSize(400, 300);
@@ -318,10 +334,19 @@ public class Viewer extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Sets the controller connected to the viewer.
+     * @param controller the Controller object to connect to.
+     */
     public void setController(Controller controller) {
         this.controller = controller;
     }
 
+    /**
+     * Converts a date in integer form to a LocalDate object.
+     * @param date the date in integer form
+     * @return the date as a LocalDate object.
+     */
     private LocalDate convertIntToLocalDate(int date) {
         String dateString = String.valueOf(date);
         // Extract year, month, and day
@@ -331,6 +356,13 @@ public class Viewer extends JFrame {
         return LocalDate.of(year, month, day); // Create and return LocalDate
     }
 
+    /**
+     * Checks to see if a task is within a given time period.
+     * @param task the task to check
+     * @param startDate the start date of the time period. Format: YYYYMMDD
+     * @param viewType the type of time period (day, week, month)
+     * @return true if within the time period, false otherwise.
+     */
     private boolean isTaskInViewPeriod(Task task, LocalDate startDate, String viewType) {
         LocalDate taskDate = convertIntToLocalDate(task.getDate()); // Convert int to LocalDate
 
@@ -346,6 +378,13 @@ public class Viewer extends JFrame {
         }
     }
 
+    /**
+     * Compares a LocalDate to see if it is in a certain time period.
+     * @param startDate the start date of the time period
+     * @param testDate the date to be checked
+     * @param period the period of time to be checked (day, week, month)
+     * @return
+     */
     private boolean isInPeriod(LocalDate startDate, LocalDate testDate, String period){
         switch (period.toLowerCase()) {
             case "day":
@@ -359,6 +398,13 @@ public class Viewer extends JFrame {
         }
     }
 
+    /**
+     * Updates the task list in the current dialog box or window.
+     * @param tasks the current task list
+     * @param listModel the listModel to be updated
+     * @param startDate the startdate of the period to list tasks for
+     * @param period the period of tasks to be listed
+     */
     public void updateTaskList(ArrayList<Task> tasks, DefaultListModel<String> listModel, int startDate, String period) {
         listModel.clear();
         ArrayList<Task> cancellationTasks = new ArrayList<>();
@@ -412,6 +458,12 @@ public class Viewer extends JFrame {
         }
     }
 
+    /**
+     * Shows the tasks in a specified period of time
+     * @param tasks
+     * @param startDate
+     * @param period
+     */
     public void showScheduleViewer(ArrayList<Task> tasks, int startDate, String period){
         JDialog dialog = new JDialog(this, "View Schedule", true);
         dialog.setSize(400, 300);
@@ -422,127 +474,6 @@ public class Viewer extends JFrame {
         DefaultListModel<String> scheduleJList = new DefaultListModel<String>();
 
         updateTaskList(tasks, scheduleJList, startDate, period);
-
-
-        /*
-        ArrayList<Task> cancellationTasks = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task instanceof AntiTask) {
-                cancellationTasks.add(task);
-            }
-        }
-        for (Task task : tasks) {
-            if (task instanceof RecurringTask) {
-                RecurringTask recurringTask = (RecurringTask) task;
-                int frequency = recurringTask.getFrequency();
-                int endDate = recurringTask.getEndDate();
-                int currentDate = task.getDate();
-
-                while (currentDate <= endDate) {
-                    boolean isCancelled = false;
-                    String cancellationName = "";
-                    for (Task cancellationTask : cancellationTasks) {
-                        if (cancellationTask.getDate() == currentDate && cancellationTask.getStartTime() == task.getStartTime()) {
-                            isCancelled = true;
-                            cancellationName = cancellationTask.getName();
-                            break;
-                        }
-                    }
-                    if (isCancelled) {
-                        String dateString = String.valueOf(task.getDate());
-                        String year = dateString.substring(0, 4);
-                        String month = dateString.substring(4, 6);
-                        String day = dateString.substring(6, 8);
-                        dateString = month + "/" + day + "/" + year;
-
-                        float endTime = task.getStartTime() + task.getDuration();
-                        int endHour = (int) Math.floor(endTime);
-                        int endMinute = (int) ((endTime - endHour) * 60);
-
-                        int startHour = (int) Math.floor(task.getStartTime());
-                        int startMinute = (int) ((task.getStartTime() - startHour) * 60);
-                        scheduleJList.addElement("<html><strike>" + task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute + "</strike> - Cancelled by " + cancellationName + "</html>");
-                    } else {
-                        String dateString = String.valueOf(task.getDate());
-                        String year = dateString.substring(0, 4);
-                        String month = dateString.substring(4, 6);
-                        String day = dateString.substring(6, 8);
-                        dateString = month + "/" + day + "/" + year;
-
-                        float endTime = task.getStartTime() + task.getDuration();
-                        int endHour = (int) Math.floor(endTime);
-                        int endMinute = (int) ((endTime - endHour) * 60);
-
-                        int startHour = (int) Math.floor(task.getStartTime());
-                        int startMinute = (int) ((task.getStartTime() - startHour) * 60);
-                        scheduleJList.addElement(task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
-                    }
-                    currentDate = incrementDate(currentDate, frequency);
-                }
-            } else if (!(task instanceof AntiTask)) {
-                String dateString = String.valueOf(task.getDate());
-                String year = dateString.substring(0, 4);
-                String month = dateString.substring(4, 6);
-                String day = dateString.substring(6, 8);
-                dateString = month + "/" + day + "/" + year;
-
-                float endTime = task.getStartTime() + task.getDuration();
-                int endHour = (int) Math.floor(endTime);
-                int endMinute = (int) ((endTime - endHour) * 60);
-
-                int startHour = (int) Math.floor(task.getStartTime());
-                int startMinute = (int) ((task.getStartTime() - startHour) * 60);
-                scheduleJList.addElement(task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
-            }
-        }
-        */
-
-        /*
-        for(int i = 0; i<tasks.size(); i++){
-
-            for (Task task : tasks) {
-            if (task instanceof RecurringTask) {
-                RecurringTask recurringTask = (RecurringTask) task;
-                int frequency = recurringTask.getFrequency();
-                int endDate = recurringTask.getEndDate();
-                int currentDate = task.getDate();
-
-                while (currentDate <= endDate) {
-                    boolean isCancelled = false;
-                    String cancellationName = "";
-                    for (Task cancellationTask : cancellationTasks) {
-                        if (cancellationTask.getDate() == currentDate && cancellationTask.getStartTime() == task.getStartTime()) {
-                            isCancelled = true;
-                            cancellationName = cancellationTask.getName();
-                            break;
-                        }
-                    }
-                    if (isCancelled) {
-                        addCancelledTaskToList(task, currentDate, cancellationName);
-                    } else {
-                        addTaskToList(task, currentDate);
-                    }
-                    currentDate = incrementDate(currentDate, frequency);
-                }
-            } else if (!(task instanceof AntiTask)) {
-                String dateString = String.valueOf(task.getDate());
-                String year = dateString.substring(0, 4);
-                String month = dateString.substring(4, 6);
-                String day = dateString.substring(6, 8);
-                dateString = month + "/" + day + "/" + year;
-
-                float endTime = task.getStartTime() + task.getDuration();
-                int endHour = (int) Math.floor(endTime);
-                int endMinute = (int) ((endTime - endHour) * 60);
-
-                int startHour = (int) Math.floor(task.getStartTime());
-                int startMinute = (int) ((task.getStartTime() - startHour) * 60);
-                scheduleJList.addElement(task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
-            }
-        } */
-
-        
-
         
 
         taskField = new JList<>(scheduleJList);
@@ -552,6 +483,12 @@ public class Viewer extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Adds a task to the listModel
+     * @param task the task to add
+     * @param date the start date of the task
+     * @param listModel the listModel to add the task to.
+     */
     private void addTaskToList(Task task, int date, DefaultListModel<String> listModel) {
         String dateString = String.valueOf(date);
         String year = dateString.substring(0, 4);
@@ -568,6 +505,12 @@ public class Viewer extends JFrame {
         listModel.addElement(task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute);
     }
 
+    /**
+     * Adds an antitask/canceled task to the list
+     * @param task the task to be canceled
+     * @param date the date of the task
+     * @param cancellationName the name of the cancellation
+     */
     private void addCancelledTaskToList(Task task, int date, String cancellationName) {
         String dateString = String.valueOf(date);
         String year = dateString.substring(0, 4);
@@ -584,6 +527,12 @@ public class Viewer extends JFrame {
         taskListModel.addElement("<html><strike>" + task.getName() + " - " + task.getType() + " - " + dateString + " - Start: " + startHour + ":" + startMinute + " - End: " + endHour + ":" + endMinute + "</strike> - Cancelled by " + cancellationName + "</html>");
     }
 
+    /**
+     * Increments a given date by its frequency.
+     * @param date the date to be incremented
+     * @param frequency the frequency to increment by
+     * @return the date, incremented by frequency.
+     */
     private int incrementDate(int date, int frequency) {
         String dateString = String.valueOf(date);
         int year = Integer.parseInt(dateString.substring(0, 4));
@@ -594,6 +543,10 @@ public class Viewer extends JFrame {
         return Integer.parseInt(localDate.format(DateTimeFormatter.BASIC_ISO_DATE));
     }
 
+    /**
+     * The main function to run the GUI.
+     * @param args
+     */
     public static void main(String[] args) {
         Model model = new Model();
         Viewer viewer = new Viewer();
@@ -602,7 +555,11 @@ public class Viewer extends JFrame {
     }
 
 
-    //For validating date input for view tasks
+    /**
+     * Validates that a date in integer format is a valid date.
+     * @param date the date in integer form to validate.
+     * @return true if the date is valid, false otherwise.
+     */
     private boolean isValidDate(Integer date){
         //Check for correct date format
         int dateLength = String.valueOf(date).length();

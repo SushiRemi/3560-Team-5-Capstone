@@ -8,13 +8,27 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+/**
+ * TaskReader reads tasks from a json file into a Model object.
+ */
 public class TaskReader {
+    /**
+     * The connected Model
+     */
     private final Model model;
 
+    /**
+     * Constructor for the TaskReader, connects to the specified model.
+     * @param model the model to connect and read tasks into.
+     */
     public TaskReader(Model model) {
         this.model = model;
     }
 
+    /**
+     * Attempts to read from a json file. If it does not exist, nothing happens.
+     * @param fileName the name of the json file to read from.
+     */
     public void readFromJson(String fileName) {
         File file = new File(fileName);
 
@@ -57,6 +71,11 @@ public class TaskReader {
         }
     }
 
+    /**
+     * Parses a task description from a JSON file into a task.
+     * @param taskJson the task json to be parsed.
+     * @return the parsed Task.
+     */
     private Task parseTask(JSONObject taskJson) {
         // Extract common attributes
         String name = (String) taskJson.get("Name");
