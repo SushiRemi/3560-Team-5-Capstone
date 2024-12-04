@@ -10,7 +10,7 @@ public class Controller {
         this.viewer.setController(this);
     }
 
-    public boolean createTask(String name, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
+    public boolean createTask(String name, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency){
         if(model.createTask(name, type, startDate, startTime, duration, endDate, frequency)){
             viewTasks();
             return true;

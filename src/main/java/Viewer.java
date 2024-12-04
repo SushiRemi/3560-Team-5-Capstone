@@ -148,18 +148,30 @@ public class Viewer extends JFrame {
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = nameField.getText();
-                String type = typeBox.getSelectedItem().toString();
-                Integer startDate = Integer.parseInt(startDateField.getText());
-                Float startTime = Float.parseFloat(startTimeField.getText());
-                Float duration = Float.parseFloat(durationField.getText());
-                Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
-                Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
-                if(controller.createTask(name, type, startDate, startTime, duration, endDate, frequency)){
-                    //Show user that task was successfully created.
-                } else {
-                    //Show user that there is input errors.
+                try {
+                    String name = nameField.getText();
+                    String type = typeBox.getSelectedItem().toString();
+                    Integer startDate = Integer.parseInt(startDateField.getText());
+                    Float startTime = Float.parseFloat(startTimeField.getText());
+                    Float duration = Float.parseFloat(durationField.getText());
+                    Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
+                    Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
+
+                    if(controller.createTask(name, type, startDate, startTime, duration, endDate, frequency)){
+                        //Show user that task was successfully created.
+                        System.out.println("DEBUG: Task Created");
+                        JOptionPane.showMessageDialog(mainPanel, "Task successfully created", "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        //Show user that there is input errors.
+                        System.out.println("DEBUG: Task Failed");
+                        JOptionPane.showMessageDialog(mainPanel, "Task information invalid, or conflicts with another task.", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception submitException) {
+                    System.out.println("DEBUG: Task Failed");
+                    JOptionPane.showMessageDialog(mainPanel, "Task information invalid, or conflicts with another task.", "ERROR", JOptionPane.ERROR_MESSAGE);
                 }
+                    
+                
             }
         });
 

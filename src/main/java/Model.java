@@ -120,17 +120,18 @@ public class Model {
                 return false;
         }
 
-        addTask(newTask);
-        return true;
+        return (addTask(newTask));
     }
 
     // Add a new task to the schedule if no conflicts exist
-    public void addTask(Task task) {
+    public boolean addTask(Task task) {
         if (checkTaskConflicts(task)) {
             TaskList.add(task);
             System.out.println("Task added successfully: " + task.getName());
+            return true;
         } else {
             System.out.println("Error: Task conflicts with an existing task!");
+            return false;
         }
     }
 
