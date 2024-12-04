@@ -45,8 +45,13 @@ public class Controller {
         viewer.updateTaskList(model.getTasks());
     }
 
+    // src/main/java/Controller.java
     public boolean editTask(String oldName, String newName, String type, Integer startDate, Float startTime, Float duration, Integer endDate, Integer frequency) {
-        return model.editTask(oldName, newName, type, startDate, startTime, duration, endDate, frequency);
+        boolean result = model.editTask(oldName, newName, type, startDate, startTime, duration, endDate, frequency);
+        if (result) {
+            viewTasks();
+        }
+        return result;
     }
 
     public Task getTaskByName(String taskName) {
