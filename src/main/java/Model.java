@@ -65,22 +65,22 @@ public class Model {
     }
 
     // Add a new task based on parameters
-    public void createTask(String name, String type, Integer date, Float startTime, Float duration, Integer endDate, Integer frequency) {
+    public boolean createTask(String name, String type, Integer date, Float startTime, Float duration, Integer endDate, Integer frequency) {
 
         if (!isValidDate(date)){
             System.out.println("Error: Invalid Start Date!");
-            return;
+            return false;
         }
 
         //Check for valid start time
         if(startTime < 0 || startTime >= 24){
             System.out.println("Error: Invalid start time!");
-            return;
+            return false;
         }
 
         if(duration <= 0){
             System.out.println("Error: Invalid duration!");
-            return;
+            return false;
         }
 
         Task newTask;
@@ -94,19 +94,19 @@ public class Model {
                 if (endDate != null){
                     if (!isValidDate(endDate) || date > endDate){
                         System.out.println("Error: Invalid End Date!");
-                        return;
+                        return false;
                     }
                 }
 
                 //Validate Frequency
                 if (frequency == null){
                     System.out.println("Error: Please input a frequency.");
-                    return;
+                    return false;
                 }
 
                 if (frequency < 1 || frequency > 365){ //frequency can not be faster than daily or slower than yearly.
                     System.out.println("Error: Invalid Frequency!");
-                    return;
+                    return false;
                 }
 
 
@@ -117,10 +117,11 @@ public class Model {
                 break;
             default:
                 System.out.println("Error: Invalid task type!");
-                return;
+                return false;
         }
 
         addTask(newTask);
+        return true;
     }
 
     // Add a new task to the schedule if no conflicts exist

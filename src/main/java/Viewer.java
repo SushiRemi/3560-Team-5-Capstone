@@ -72,7 +72,21 @@ public class Viewer extends JFrame {
             }
         });
 
+        JButton editButton = new JButton("Edit Task");
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedTask = taskList.getSelectedValue();
+                if (selectedTask != null) {
+                    //bring up same menu as create task
+                    showTaskEntryDialog();
+                    //--controller.editTask(selectedTask.split(" - ")[0]);
+                }
+            }
+        });
+
         panel.add(createButton);
+        panel.add(editButton);
         panel.add(deleteButton);
         panel.add(saveButton);
         panel.add(viewTasksButton);
@@ -84,7 +98,7 @@ public class Viewer extends JFrame {
     private void showTaskEntryDialog() {
         JDialog dialog = new JDialog(this, "Create Task", true);
         dialog.setSize(400, 300);
-        dialog.setLayout(new BorderLayout());
+        dialog.setLayout(new FlowLayout());
 
         JPanel mainPanel = new JPanel(new GridLayout(0, 2));
         JTextField nameField = new JTextField();
@@ -141,14 +155,29 @@ public class Viewer extends JFrame {
                 Float duration = Float.parseFloat(durationField.getText());
                 Integer endDate = endDateField.getText().isEmpty() ? null : Integer.parseInt(endDateField.getText());
                 Integer frequency = frequencyField.getText().isEmpty() ? null : Integer.parseInt(frequencyField.getText());
-                controller.createTask(name, type, startDate, startTime, duration, endDate, frequency);
+                if(controller.createTask(name, type, startDate, startTime, duration, endDate, frequency)){
+                    //Show user that task was successfully created.
+                } else {
+                    //Show user that there is input errors.
+                }
+            }
+        });
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
                 dialog.dispose();
             }
         });
 
-        dialog.add(mainPanel, BorderLayout.NORTH);
-        dialog.add(cardPanel, BorderLayout.CENTER);
-        dialog.add(submitButton, BorderLayout.SOUTH);
+        JPanel submitExitPanel = new JPanel(new GridLayout(0, 2));
+        submitExitPanel.add(submitButton);
+        submitExitPanel.add(exitButton);
+
+        dialog.add(mainPanel);
+        dialog.add(cardPanel);
+        dialog.add(submitExitPanel);
         dialog.setVisible(true);
     }
 
